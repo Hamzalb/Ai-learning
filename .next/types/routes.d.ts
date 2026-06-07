@@ -62,4 +62,6 @@ declare global {
     params: Promise<ParamMap[LayoutRoute]>
     children: React.ReactNode
   } & {
-    [K in Lay
+    [K in LayoutSlotMap[LayoutRoute]]: React.ReactNode
+  }
+}
