@@ -1,10 +1,4 @@
 {
   "/page": "app/page.js",
-  "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js",
-  "/(auth)/login/page": "app/(auth)/login/page.js",
-  "/(settings)/settings/page": "app/(settings)/settings/page.js",
-  "/(auth)/register/page": "app/(auth)/register/page.js",
-  "/(chat)/chat/page": "app/(chat)/chat/page.js",
-  "/(pdf)/pdf/page": "app/(pdf)/pdf/page.js",
-  "/(quiz)/quiz/page": "app/(quiz)/quiz/page.js"
+  "/(auth)/login/page": "app/(auth)/login/page.js"
 }

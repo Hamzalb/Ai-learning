@@ -10,8 +10,7 @@ interface AuthState {
   isLoading: boolean;
   isAuthenticated: boolean;
 
-  login: (email: string, password: string) => Promise<void>;
-  register: (data: { name: string; email: string; password: string; role?: string }) => Promise<void>;
+  login: (email: string, password: string, rememberMe?: boolean) => Promise<string>;
   logout: () => void;
   fetchUser: () => Promise<void>;
   updateUser: (data: Partial<User>) => void;
@@ -25,28 +24,16 @@ export const useAuthStore = create<AuthState>()(
       isLoading: false,
       isAuthenticated: false,
 
-      login: async (email, password) => {
+      login: async (email, password, rememberMe = false) => {
         set({ isLoading: true });
         try {
-          const res = await authAPI.login({ email, password });
-          const { user, token } = res.data.data;
-          Cookies.set('token', token, { expires: 7, secure: true, sameSite: 'strict' });
+          const res = await authAPI.login({ email, password, rememberMe });
+          const { user, token, redirect } = res.data.data;
+          const expires = rememberMe ? 30 : 7;
+          Cookies.set('token', token, { expires, secure: true, sameSite: 'strict' });
           if (typeof window !== 'undefined') localStorage.setItem('token', token);
           set({ user, token, isAuthenticated: true, isLoading: false });
-        } catch (error) {
-          set({ isLoading: false });
-          throw error;
-        }
-      },
-
-      register: async (data) => {
-        set({ isLoading: true });
-        try {
-          const res = await authAPI.register(data);
-          const { user, token } = res.data.data;
-          Cookies.set('token', token, { expires: 7, secure: true, sameSite: 'strict' });
-          if (typeof window !== 'undefined') localStorage.setItem('token', token);
-          set({ user, token, isAuthenticated: true, isLoading: false });
+          return redirect || '/login';
         } catch (error) {
           set({ isLoading: false });
           throw error;
@@ -57,6 +44,7 @@ export const useAuthStore = create<AuthState>()(
         Cookies.remove('token');
         if (typeof window !== 'undefined') {
           localStorage.removeItem('token');
+          localStorage.removeItem('auth-storage');
           window.location.href = '/login';
         }
         set({ user: null, token: null, isAuthenticated: false });
@@ -76,9 +64,7 @@ export const useAuthStore = create<AuthState>()(
 
       updateUser: (data) => {
         const current = get().user;
-        if (current) {
-          set({ user: { ...current, ...data } });
-        }
+        if (current) set({ user: { ...current, ...data } });
       }
     }),
     {

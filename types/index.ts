@@ -1,8 +1,13 @@
+export type UserRole = 'super_admin' | 'school' | 'principal' | 'teacher' | 'student';
+
 export interface User {
   _id: string;
   name: string;
   email: string;
-  role: 'student' | 'teacher' | 'admin';
+  role: UserRole;
+  schoolId?: string;
+  isActive?: boolean;
+  phone?: string;
   avatar?: string;
   streak: number;
   xp: number;
@@ -22,47 +27,70 @@ export interface User {
   createdAt: string;
 }
 
-export interface Message {
-  _id?: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp?: string;
-}
-
-export interface Chat {
+export interface School {
   _id: string;
-  title: string;
-  messages: Message[];
-  subject: string;
-  language: string;
-  messageCount?: number;
-  lastMessage?: string;
+  name: string;
+  address: string;
+  logo?: string;
+  contactEmail: string;
+  phone: string;
+  isActive: boolean;
+  principalId?: string;
   createdAt: string;
-  updatedAt: string;
 }
 
-export interface Document {
+export interface Classroom {
+  _id: string;
+  name: string;
+  gradeLevel: string;
+  capacity: number;
+  schoolId: string;
+  teacherId?: string;
+  studentIds: string[];
+  subjectIds: string[];
+}
+
+export interface Subject {
+  _id: string;
+  name: string;
+  classroomId: string;
+  teacherId?: string;
+  schoolId: string;
+  color: string;
+}
+
+export interface Grade {
+  _id: string;
+  studentId: string;
+  subjectId: string;
+  classroomId: string;
+  type: 'quiz' | 'midterm' | 'final' | 'homework' | 'participation';
+  score: number;
+  maxScore: number;
+  term: string;
+  note?: string;
+  createdAt: string;
+}
+
+export interface SchoolDocument {
   _id: string;
   title: string;
-  filename: string;
-  originalName: string;
   fileUrl: string;
-  fileSize: number;
+  originalName: string;
   mimeType: string;
-  extractedText?: string;
-  pageCount: number;
-  language: string;
-  subject: string;
-  processingStatus: 'pending' | 'processing' | 'completed' | 'failed';
-  summary?: string;
-  userId: string;
+  size: number;
+  classroomId: string;
+  teacherId: string;
+  visibility: string;
+  category: 'lecture' | 'assignment' | 'resource' | 'exam';
+  isProtected: boolean;
   createdAt: string;
 }
 
 export interface QuizQuestion {
   _id?: string;
   question: string;
-  type: 'mcq' | 'true_false' | 'fill_blank' | 'essay';
+  type: 'multiple_choice' | 'true_false' | 'short_answer' | 'mcq' | 'fill_blank' | 'essay';
   options?: string[];
   correctAnswer?: string;
   explanation?: string;
@@ -72,14 +100,19 @@ export interface QuizQuestion {
 export interface Quiz {
   _id: string;
   title: string;
-  subject: string;
-  difficulty: 'easy' | 'medium' | 'hard';
+  description?: string;
+  subject?: string;
+  classroomId?: string;
+  teacherId?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
   questions: QuizQuestion[];
-  totalPoints: number;
-  timeLimit: number;
-  attempts: QuizAttempt[];
+  totalPoints?: number;
+  duration?: number;
+  timeLimit?: number;
+  dueDate?: string;
+  attempts?: QuizAttempt[];
   lastScore?: number | null;
-  userId: string;
+  userId?: string;
   createdAt: string;
 }
 
@@ -109,6 +142,82 @@ export interface QuizResult {
   }[];
 }
 
+export interface Homework {
+  _id: string;
+  title: string;
+  description: string;
+  classroomId: string;
+  subjectId: string;
+  dueDate: string;
+  submissions: HomeworkSubmission[];
+  mySubmission?: HomeworkSubmission;
+  status?: 'pending' | 'submitted' | 'graded';
+  createdAt: string;
+}
+
+export interface HomeworkSubmission {
+  studentId: string;
+  text?: string;
+  fileUrl?: string;
+  submittedAt: string;
+  grade?: number;
+  feedback?: string;
+  status: 'submitted' | 'graded';
+}
+
+export interface Attendance {
+  _id: string;
+  studentId: string;
+  classroomId: string;
+  subjectId?: string;
+  date: string;
+  status: 'present' | 'absent' | 'late';
+}
+
+export interface Payment {
+  _id: string;
+  studentId: string;
+  schoolId: string;
+  amount: number;
+  currency: string;
+  status: 'pending' | 'paid' | 'overdue';
+  dueDate: string;
+  paidAt?: string;
+  description: string;
+  createdAt: string;
+}
+
+export interface AuditLog {
+  _id: string;
+  actorId: string;
+  actorName: string;
+  actorRole: string;
+  action: string;
+  targetId?: string;
+  targetModel?: string;
+  details?: Record<string, unknown>;
+  createdAt: string;
+}
+
+export interface Message {
+  _id?: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp?: string;
+}
+
+export interface Chat {
+  _id: string;
+  title: string;
+  messages: Message[];
+  subject: string;
+  language: string;
+  messageCount?: number;
+  lastMessage?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface DashboardData {
   user: User;
   stats: {
@@ -119,7 +228,7 @@ export interface DashboardData {
     quizAttempts: number;
   };
   recentChats: Partial<Chat>[];
-  recentDocuments: Partial<Document>[];
+  recentDocuments: Partial<SchoolDocument>[];
   recentQuizzes: Partial<Quiz>[];
   badges: string[];
 }
