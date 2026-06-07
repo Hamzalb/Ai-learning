@@ -11,12 +11,6 @@ export const metadata: Metadata = {
   description: 'AI-powered learning platform for Lebanese students. Upload PDFs, generate quizzes, chat with AI tutor in Arabic and Lebanese dialect.',
   keywords: ['Lebanon', 'AI', 'Learning', 'Education', 'Arabic', 'Quiz', 'PDF', 'Students'],
   authors: [{ name: 'Lebanese AI Learning' }],
-  manifest: '/manifest.json',
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'black-translucent',
-    title: 'Lebanese AI'
-  },
   openGraph: {
     title: 'Lebanese AI Learning Platform',
     description: 'AI-powered education for Lebanese students',
@@ -27,11 +21,6 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ar" dir="rtl" className="dark">
-      <head>
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="theme-color" content="#3b82f6" />
-        <link rel="apple-touch-icon" href="/icon-192.png" />
-      </head>
       <body className={`${inter.variable} ${cairo.variable} antialiased min-h-screen`}>
         {children}
         <Toaster

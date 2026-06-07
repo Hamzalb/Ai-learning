@@ -20,15 +20,10 @@ import {
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showStreakBanner, setShowStreakBanner] = useState(false);
 
   useEffect(() => {
     userAPI.getDashboard()
-      .then(res => {
-        setData(res.data.data);
-        const streak = res.data.data?.user?.streak || 0;
-        if (streak > 0 && streak % 7 === 0) setShowStreakBanner(true);
-      })
+      .then(res => setData(res.data.data))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
@@ -83,23 +78,7 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-4 md:p-8 space-y-6 md:space-y-8" dir="rtl">
-        {/* Streak milestone banner */}
-        {showStreakBanner && (
-          <motion.div
-            initial={{ opacity: 0, y: -12 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-orange-500/20 to-yellow-500/20 border border-orange-500/30"
-          >
-            <div className="flex items-center gap-2">
-              <Flame className="w-5 h-5 text-orange-400 flex-shrink-0" />
-              <span className="text-sm font-semibold text-foreground">
-                🎉 مبروك! وصلت لـ {data?.user?.streak} يوم streak متواصل!
-              </span>
-            </div>
-            <button onClick={() => setShowStreakBanner(false)} className="text-muted-foreground hover:text-foreground text-lg leading-none">×</button>
-          </motion.div>
-        )}
+      <div className="p-8 space-y-8" dir="rtl">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex items-center justify-between">

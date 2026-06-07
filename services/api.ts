@@ -55,9 +55,7 @@ export const aiAPI = {
   summarize: (data: { text: string; language?: string }) =>
     api.post('/ai/summarize', data),
   explainConcept: (data: { concept: string; subject?: string; language?: string }) =>
-    api.post('/ai/explain', data),
-  summarizeUrl: (data: { url: string; language?: string }) =>
-    api.post('/ai/summarize-url', data)
+    api.post('/ai/explain', data)
 };
 
 export const pdfAPI = {
@@ -97,30 +95,7 @@ export const quizAPI = {
 export const userAPI = {
   getDashboard: () => api.get('/user/dashboard'),
   getHistory: (type = 'all') => api.get(`/user/history?type=${type}`),
-  getLeaderboard: () => api.get('/user/leaderboard'),
-  getProgress: () => api.get('/user/progress')
-};
-
-export const flashcardAPI = {
-  getFlashcards: (params?: { subject?: string; due?: boolean }) =>
-    api.get('/flashcards', { params }),
-  createFlashcard: (data: { front: string; back: string; subject?: string; tags?: string[] }) =>
-    api.post('/flashcards', data),
-  updateFlashcard: (id: string, data: Partial<{ front: string; back: string; subject: string; tags: string[] }>) =>
-    api.put(`/flashcards/${id}`, data),
-  deleteFlashcard: (id: string) => api.delete(`/flashcards/${id}`),
-  reviewFlashcard: (id: string, confidence: 0 | 1 | 2 | 3 | 4) =>
-    api.post(`/flashcards/${id}/review`, { confidence }),
-  generateFlashcards: (data: { text: string; subject?: string; count?: number; language?: string }) =>
-    api.post('/flashcards/generate', data),
-  deleteAll: (subject?: string) => api.delete('/flashcards/all', { params: subject ? { subject } : {} })
-};
-
-export const teacherAPI = {
-  getDashboard: () => api.get('/teacher/dashboard'),
-  getStudents: (page = 1, sort = 'xp') => api.get(`/teacher/students?page=${page}&sort=${sort}`),
-  getQuizzes: () => api.get('/teacher/quizzes'),
-  publishQuiz: (id: string) => api.put(`/teacher/quiz/${id}/publish`)
+  getLeaderboard: () => api.get('/user/leaderboard')
 };
 
 export default api;

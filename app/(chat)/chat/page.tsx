@@ -2,7 +2,7 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Plus, Trash2, MessageSquare, Bot, User, Sparkles, Mic, MicOff } from 'lucide-react';
+import { Send, Plus, Trash2, MessageSquare, Bot, User, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
 import DashboardLayout from '@/components/layout/DashboardLayout';
@@ -44,9 +44,6 @@ function ChatContent() {
   const [input, setInput] = useState('');
   const [language, setLanguage] = useState<Language>('arabic');
   const [subject, setSubject] = useState('general');
-  const [isListening, setIsListening] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const recognitionRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -71,35 +68,6 @@ function ChatContent() {
     } catch {
       toast.error('حدث خطأ. تأكد من إعدادات API.');
     }
-  };
-
-  const toggleVoice = () => {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      toast.error('المتصفح لا يدعم التعرف على الصوت');
-      return;
-    }
-    if (isListening) {
-      recognitionRef.current?.stop();
-      setIsListening(false);
-      return;
-    }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const SR: new () => any = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SR) return;
-    const recognition = new SR();
-    recognition.lang = language === 'english' ? 'en-US' : 'ar-LB';
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    recognition.onresult = (e: any) => {
-      const transcript = e.results[0][0].transcript;
-      setInput(prev => prev + (prev ? ' ' : '') + transcript);
-    };
-    recognition.onend = () => setIsListening(false);
-    recognition.onerror = () => { setIsListening(false); toast.error('حدث خطأ في التعرف على الصوت'); };
-    recognitionRef.current = recognition;
-    recognition.start();
-    setIsListening(true);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -304,18 +272,6 @@ function ChatContent() {
                   style={{ maxHeight: '120px' }}
                 />
               </div>
-              <button
-                onClick={toggleVoice}
-                title="إدخال صوتي"
-                className={cn(
-                  'h-11 w-11 flex-shrink-0 rounded-xl flex items-center justify-center border transition-all',
-                  isListening
-                    ? 'border-red-500/50 bg-red-500/10 text-red-400 animate-pulse'
-                    : 'border-border bg-secondary text-muted-foreground hover:text-foreground'
-                )}
-              >
-                {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-              </button>
               <Button
                 onClick={handleSend}
                 disabled={!input.trim() || isSending}

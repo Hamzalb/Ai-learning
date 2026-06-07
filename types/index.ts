@@ -124,34 +124,6 @@ export interface DashboardData {
   badges: string[];
 }
 
-export interface Flashcard {
-  _id: string;
-  front: string;
-  back: string;
-  subject: string;
-  tags: string[];
-  confidence: 0 | 1 | 2 | 3 | 4;
-  nextReview: string | null;
-  reviewCount: number;
-  userId: string;
-  createdAt: string;
-}
-
-export interface ProgressSubject {
-  subject: string;
-  quizCount: number;
-  chatCount: number;
-  averageScore: number;
-  totalScore: number;
-}
-
-export interface WeeklyActivity {
-  day: string;
-  quizzes: number;
-  chats: number;
-  total: number;
-}
-
 export type Language = 'arabic' | 'english' | 'lebanese';
 export type Difficulty = 'easy' | 'medium' | 'hard';
 export type Subject = 'math' | 'physics' | 'chemistry' | 'biology' | 'history' | 'arabic' | 'english' | 'french' | 'general';

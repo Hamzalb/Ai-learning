@@ -4,7 +4,7 @@ import { useDropzone } from 'react-dropzone';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Upload, FileText, Trash2, Eye, Zap, CheckCircle,
-  AlertCircle, Clock, FileSearch, Languages, Plus, Link2, Sparkles
+  AlertCircle, Clock, FileSearch, Languages, Plus
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import DashboardLayout from '@/components/layout/DashboardLayout';
@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
-import { pdfAPI, aiAPI } from '@/services/api';
+import { pdfAPI } from '@/services/api';
 import type { Document } from '@/types';
 import { formatDate, formatFileSize, truncate } from '@/lib/utils';
 
@@ -31,11 +31,6 @@ export default function PDFPage() {
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
   const [summarizing, setSummarizing] = useState(false);
   const [summaryLang, setSummaryLang] = useState<'arabic' | 'lebanese' | 'english'>('lebanese');
-  const [tab, setTab] = useState<'documents' | 'url'>('documents');
-  const [urlInput, setUrlInput] = useState('');
-  const [urlLang, setUrlLang] = useState<'arabic' | 'lebanese' | 'english'>('arabic');
-  const [urlSummary, setUrlSummary] = useState('');
-  const [urlLoading, setUrlLoading] = useState(false);
 
   const fetchDocs = async () => {
     try {
@@ -132,20 +127,6 @@ export default function PDFPage() {
     }
   };
 
-  const handleUrlSummarize = async () => {
-    if (!urlInput.trim()) return toast.error('أدخل رابطاً صحيحاً');
-    setUrlLoading(true);
-    setUrlSummary('');
-    try {
-      const res = await aiAPI.summarizeUrl({ url: urlInput.trim(), language: urlLang });
-      setUrlSummary(res.data.data.summary);
-    } catch {
-      toast.error('فشل تلخيص الرابط');
-    } finally {
-      setUrlLoading(false);
-    }
-  };
-
   const handleViewDoc = async (id: string) => {
     try {
       const res = await pdfAPI.getDocumentById(id);
@@ -157,66 +138,12 @@ export default function PDFPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-4 md:p-8 space-y-6" dir="rtl">
+      <div className="p-8 space-y-8" dir="rtl">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">مستنداتي</h1>
-          <p className="text-muted-foreground mt-1 text-sm">ارفع ملفاتك أو لخّص أي رابط بالذكاء الاصطناعي</p>
+          <h1 className="text-3xl font-bold text-foreground">مستنداتي</h1>
+          <p className="text-muted-foreground mt-1">ارفع كتبك ومذكراتك للمعالجة بالذكاء الاصطناعي</p>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-1 p-1 bg-secondary rounded-xl w-fit">
-          <button
-            onClick={() => setTab('documents')}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-all flex items-center gap-1.5 ${tab === 'documents' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
-          >
-            <FileText className="w-4 h-4" /> المستندات
-          </button>
-          <button
-            onClick={() => setTab('url')}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-all flex items-center gap-1.5 ${tab === 'url' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
-          >
-            <Link2 className="w-4 h-4" /> تلخيص رابط
-          </button>
-        </div>
-
-        {/* URL Summarizer */}
-        {tab === 'url' && (
-          <div className="space-y-4 max-w-2xl">
-            <p className="text-sm text-muted-foreground">الصق رابط أي موقع أو مقال أو فيديو يوتيوب وسنلخصه لك</p>
-            <div className="flex gap-3">
-              <input
-                type="url"
-                value={urlInput}
-                onChange={e => setUrlInput(e.target.value)}
-                placeholder="https://..."
-                className="flex-1 input-field text-sm"
-                dir="ltr"
-              />
-              <select
-                value={urlLang}
-                onChange={e => setUrlLang(e.target.value as 'arabic' | 'lebanese' | 'english')}
-                className="input-field text-sm w-36"
-              >
-                <option value="arabic">عربي فصيح</option>
-                <option value="lebanese">عامية لبنانية</option>
-                <option value="english">English</option>
-              </select>
-            </div>
-            <Button onClick={handleUrlSummarize} isLoading={urlLoading}>
-              <Sparkles className="w-4 h-4 ml-1" /> لخّص الرابط
-            </Button>
-            {urlSummary && (
-              <div className="glass-card p-5 space-y-2">
-                <h3 className="font-semibold text-foreground flex items-center gap-2 text-sm">
-                  <Zap className="w-4 h-4 text-yellow-400" /> الملخص
-                </h3>
-                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{urlSummary}</p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {tab === 'documents' && <>
         {/* Upload Zone */}
         <div
           {...getRootProps()}
@@ -417,7 +344,6 @@ export default function PDFPage() {
             )}
           </div>
         </div>
-        </>}
       </div>
     </DashboardLayout>
   );
