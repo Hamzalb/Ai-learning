@@ -95,7 +95,8 @@ export const principalAPI = {
   updateSubject: (id: string, data: object) => api.put(`/principal/subjects/${id}`, data),
   deleteSubject: (id: string) => api.delete(`/principal/subjects/${id}`),
   getSchedule: (classroomId?: string) => api.get('/principal/schedules', { params: { classroomId } }),
-  upsertSchedule: (data: object) => api.post('/principal/schedules', data)
+  upsertSchedule: (data: object) => api.post('/principal/schedules', data),
+  getPayslips: () => api.get('/principal/payslips')
 };
 
 export const teacherAPI = {
@@ -115,7 +116,8 @@ export const teacherAPI = {
   deleteQuiz: (id: string) => api.delete(`/teacher/quizzes/${id}`),
   getSubmissions: (id: string) => api.get(`/teacher/quizzes/${id}/submissions`),
   getHomework: (params?: object) => api.get('/teacher/homework', { params }),
-  createHomework: (data: object) => api.post('/teacher/homework', data)
+  createHomework: (data: object) => api.post('/teacher/homework', data),
+  getPayslips: () => api.get('/teacher/payslips')
 };
 
 export const studentAPI = {
