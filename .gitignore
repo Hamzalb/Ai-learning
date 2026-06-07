@@ -1,1 +1,21 @@
+# Dependencies
+node_modules/
+
+# Next.js build output & cache — never commit these
+.next/
+out/
+
+# Environment files
 .env
+.env.local
+.env.*.local
+
+# Build artifacts
+dist/
+build/
+*.tsbuildinfo
+
+# Misc
+.DS_Store
+*.log
+coverage/
