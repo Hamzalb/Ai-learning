@@ -1,5 +1,7 @@
 # Dependencies
 node_modules/
+pnpm-lock.yaml
+yarn.lock
 
 # Next.js build output & cache — never commit these
 .next/
@@ -9,13 +11,28 @@ out/
 .env
 .env.local
 .env.*.local
+.env.production.local
+.env.test.local
 
 # Build artifacts
 dist/
 build/
 *.tsbuildinfo
 
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+coverage/
+.nyc_output/
+
 # Misc
 .DS_Store
 *.log
-coverage/
+logs/
+Thumbs.db
+*.pem
