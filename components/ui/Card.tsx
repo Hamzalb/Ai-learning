@@ -7,10 +7,13 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 const Card = ({ className, glass, children, ...props }: CardProps) => (
   <div
     className={cn(
-      'rounded-2xl border border-border bg-card text-card-foreground',
-      glass && 'bg-card/60 backdrop-blur-sm border-border/50',
+      'relative rounded-2xl border border-white/[0.06] bg-card/50 backdrop-blur-sm text-card-foreground',
+      glass && 'bg-card/30 backdrop-blur-xl border-white/[0.04]',
       className
     )}
+    style={{
+      boxShadow: '0 0 0 1px hsl(var(--border) / 0.3), 0 1px 2px hsl(var(--background) / 0.3)'
+    }}
     {...props}
   >
     {children}
@@ -22,7 +25,7 @@ const CardHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement
 );
 
 const CardTitle = ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
-  <h3 className={cn('text-lg font-bold text-foreground', className)} {...props} />
+  <h3 className={cn('text-lg font-bold text-foreground tracking-tight', className)} {...props} />
 );
 
 const CardDescription = ({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) => (

@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion } from 'framer-motion';
-import { BookOpen, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { BookOpen, Mail, Lock, Eye, EyeOff, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -31,7 +31,7 @@ export default function LoginPage() {
   const onSubmit = async (data: FormData) => {
     try {
       await login(data.email, data.password);
-      toast.success('أهلاً بعودتك! 👋');
+      toast.success('أهلاً بعودتك!');
       router.push('/dashboard');
     } catch (error: unknown) {
       const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'خطأ في تسجيل الدخول';
@@ -41,26 +41,26 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6" dir="rtl">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 right-1/3 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-purple-500/5 rounded-full blur-3xl" />
-      </div>
+      <div className="absolute inset-0 mesh-gradient" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-primary/[0.04] rounded-full blur-[100px]" />
 
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 200, damping: 20 }}
         className="w-full max-w-md relative"
       >
-        <div className="glass-card p-8">
-          {/* Logo */}
+        <div className="glass-card p-8 overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+
           <div className="text-center mb-8">
             <Link href="/" className="inline-flex flex-col items-center gap-3">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 via-violet-500 to-purple-600 flex items-center justify-center shadow-xl shadow-violet-500/25">
                 <BookOpen className="w-7 h-7 text-white" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-foreground">أهلاً بعودتك</h1>
-                <p className="text-muted-foreground text-sm">سجّل دخولك للمتابعة</p>
+                <p className="text-muted-foreground text-sm mt-1">سجّل دخولك للمتابعة</p>
               </div>
             </Link>
           </div>
@@ -85,17 +85,17 @@ export default function LoginPage() {
                 error={errors.password?.message}
                 leftIcon={<Lock className="w-4 h-4" />}
                 rightIcon={
-                  <button type="button" onClick={() => setShowPass(!showPass)} className="text-muted-foreground hover:text-foreground transition-colors">
+                  <button type="button" onClick={() => setShowPass(!showPass)} className="text-muted-foreground hover:text-foreground transition-colors p-1">
                     {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 }
               />
-              <Link href="#" className="text-xs text-primary hover:underline mt-1 inline-block">
+              <Link href="#" className="text-xs text-primary hover:underline mt-1.5 inline-block">
                 نسيت كلمة المرور؟
               </Link>
             </div>
 
-            <Button type="submit" className="w-full" size="lg" isLoading={isLoading}>
+            <Button type="submit" className="w-full shadow-lg shadow-primary/20" size="lg" isLoading={isLoading}>
               تسجيل الدخول
             </Button>
           </form>
@@ -108,6 +108,11 @@ export default function LoginPage() {
               </Link>
             </p>
           </div>
+        </div>
+
+        <div className="text-center mt-4 flex items-center justify-center gap-1.5 text-muted-foreground/50 text-xs">
+          <Sparkles className="w-3 h-3" />
+          <span>مدعوم بالذكاء الاصطناعي</span>
         </div>
       </motion.div>
     </div>
