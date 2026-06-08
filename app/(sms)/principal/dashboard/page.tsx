@@ -7,17 +7,13 @@ import SMSLayout from '@/components/sms/SMSLayout';
 import StatsCard from '@/components/sms/StatsCard';
 import { principalAPI } from '@/services/api';
 import { useAuthStore } from '@/store/authStore';
-
-const QUICK_LINKS = [
-  { label: 'Classrooms',  href: '/principal/classrooms', icon: Home,        color: 'from-sky-500 to-cyan-600',     desc: 'View & manage classrooms' },
-  { label: 'Subjects',    href: '/principal/subjects',   icon: BookOpen,    color: 'from-emerald-500 to-teal-600', desc: 'Set up course subjects' },
-  { label: 'Schedules',   href: '/principal/schedules',  icon: CalendarDays, color: 'from-violet-500 to-purple-600', desc: 'Edit timetables' },
-];
+import { useT } from '@/lib/i18n';
 
 export default function PrincipalDashboard() {
   const { user } = useAuthStore();
   const [stats, setStats] = useState({ classrooms: 0, subjects: 0, teachers: 0, unassigned: 0 });
   const [loading, setLoading] = useState(true);
+  const t = useT();
 
   useEffect(() => {
     principalAPI.getDashboard()
@@ -26,7 +22,13 @@ export default function PrincipalDashboard() {
   }, []);
 
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const greeting = hour < 12 ? t('welcomeBack') : hour < 17 ? t('welcomeBack') : t('welcomeBack');
+
+  const QUICK_LINKS = [
+    { label: t('classrooms'),  href: '/principal/classrooms', icon: Home,         color: 'from-sky-500 to-cyan-600',      desc: t('manageStudents') },
+    { label: t('subjects'),    href: '/principal/subjects',   icon: BookOpen,     color: 'from-emerald-500 to-teal-600',  desc: t('noSubjects') },
+    { label: t('schedules'),   href: '/principal/schedules',  icon: CalendarDays, color: 'from-violet-500 to-purple-600', desc: t('weeklySchedule') },
+  ];
 
   return (
     <SMSLayout allowedRoles={['principal']}>
@@ -46,31 +48,31 @@ export default function PrincipalDashboard() {
           <div className="relative">
             <div className="flex items-center gap-2 mb-2">
               <Sparkles className="w-4 h-4 text-violet-400" />
-              <span className="text-xs font-bold uppercase tracking-widest text-violet-400">Principal Panel</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-violet-400">{t('rolePrincipal')}</span>
             </div>
             <h1 className="text-3xl font-black text-foreground tracking-tight">
               {greeting},{' '}
-              <span className="gradient-text">{user?.name?.split(' ')[0] || 'Principal'}</span>
+              <span className="gradient-text">{user?.name?.split(' ')[0] || t('rolePrincipal')}</span>
             </h1>
             <p className="text-sm text-muted-foreground mt-1.5">
-              Oversee classrooms, schedules, and subjects.
+              {t('overview')} — {t('classrooms')}, {t('schedules')}, {t('subjects')}.
             </p>
           </div>
         </motion.div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatsCard label="Classrooms"  value={loading ? 0 : stats.classrooms} icon={Home}          color="text-sky-400"    iconBg="from-sky-500/20 to-sky-600/10"       delay={0}    />
-          <StatsCard label="Subjects"    value={loading ? 0 : stats.subjects}   icon={BookOpen}      color="text-emerald-400" iconBg="from-emerald-500/20 to-emerald-600/10" delay={0.06} />
-          <StatsCard label="Teachers"    value={loading ? 0 : stats.teachers}   icon={Users}         color="text-violet-400"  iconBg="from-violet-500/20 to-violet-600/10"  delay={0.12} />
+          <StatsCard label={t('classrooms')}      value={loading ? 0 : stats.classrooms}  icon={Home}          color="text-sky-400"    iconBg="from-sky-500/20 to-sky-600/10"       delay={0}    />
+          <StatsCard label={t('subjects')}        value={loading ? 0 : stats.subjects}    icon={BookOpen}      color="text-emerald-400" iconBg="from-emerald-500/20 to-emerald-600/10" delay={0.06} />
+          <StatsCard label={t('teachers')}        value={loading ? 0 : stats.teachers}    icon={Users}         color="text-violet-400"  iconBg="from-violet-500/20 to-violet-600/10"  delay={0.12} />
           <StatsCard
-            label="Unassigned"
+            label={t('unassignedClasses')}
             value={loading ? 0 : stats.unassigned}
             icon={AlertTriangle}
             color="text-amber-400"
             iconBg="from-amber-500/20 to-amber-600/10"
             delay={0.18}
-            sub="Needs a teacher"
+            sub={t('unassigned')}
           />
         </div>
 
@@ -81,7 +83,7 @@ export default function PrincipalDashboard() {
           transition={{ delay: 0.22, type: 'spring', stiffness: 260, damping: 24 }}
         >
           <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-3">
-            Management
+            {t('overview')}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {QUICK_LINKS.map((link, i) => (

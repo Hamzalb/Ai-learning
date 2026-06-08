@@ -5,6 +5,7 @@ import { FileText, Search, Lock } from 'lucide-react';
 import SMSLayout from '@/components/sms/SMSLayout';
 import { studentAPI } from '@/services/api';
 import { SchoolDocument } from '@/types';
+import { useT } from '@/lib/i18n';
 
 const CATEGORIES = ['all', 'lecture', 'assignment', 'resource', 'exam'];
 const CAT_BADGE: Record<string, string> = {
@@ -19,6 +20,7 @@ export default function StudentDocumentsPage() {
   const [search,    setSearch]    = useState('');
   const [category,  setCategory]  = useState('all');
   const [loading,   setLoading]   = useState(true);
+  const t = useT();
 
   useEffect(() => {
     setLoading(true);
@@ -32,14 +34,14 @@ export default function StudentDocumentsPage() {
       <div className="space-y-5 max-w-4xl mx-auto">
 
         <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', stiffness: 280, damping: 24 }}>
-          <h1 className="section-header">My Documents</h1>
-          <p className="section-subheader">Class materials shared by your teachers</p>
+          <h1 className="section-header">{t('documents')}</h1>
+          <p className="section-subheader">{t('classDocuments')}</p>
         </motion.div>
 
         <div className="flex gap-3 flex-wrap">
           <div className="relative flex-1 min-w-48">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60 pointer-events-none" />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search documents…" className="input-field pl-10" />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('search')} className="input-field pl-10" />
           </div>
           <div className="flex gap-1 p-1 rounded-xl bg-white/[0.02] border border-white/[0.04] flex-wrap">
             {CATEGORIES.map(c => (
@@ -69,7 +71,7 @@ export default function StudentDocumentsPage() {
               <div className="icon-box-lg bg-sky-500/5 border border-sky-500/10 mx-auto mb-4">
                 <FileText className="w-6 h-6 text-sky-400/40" />
               </div>
-              <p className="text-sm text-muted-foreground">No documents available yet</p>
+              <p className="text-sm text-muted-foreground">{t('noDocuments')}</p>
             </div>
           ) : documents.map((d, i) => (
             <motion.div key={d._id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}

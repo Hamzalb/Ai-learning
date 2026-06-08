@@ -7,6 +7,7 @@ import { studentAPI } from '@/services/api';
 import { Homework } from '@/types';
 import toast from 'react-hot-toast';
 import { cn } from '@/lib/utils';
+import { useT } from '@/lib/i18n';
 
 const STATUS_BADGE: Record<string, string> = {
   pending:   'badge-warning',
@@ -19,6 +20,7 @@ export default function StudentHomeworkPage() {
   const [loading,    setLoading]    = useState(true);
   const [submitting, setSubmitting] = useState<string | null>(null);
   const [texts,      setTexts]      = useState<Record<string, string>>({});
+  const t = useT();
 
   const load = () => studentAPI.getHomework().then(r => setHomework(r.data.data.homework)).finally(() => setLoading(false));
   useEffect(() => { load(); }, []);
@@ -27,7 +29,7 @@ export default function StudentHomeworkPage() {
     setSubmitting(id);
     try {
       await studentAPI.submitHomework(id, { text: texts[id] || '' });
-      toast.success('Homework submitted');
+      toast.success(t('assignHomework'));
       load();
     } catch { toast.error('Submission failed'); }
     finally { setSubmitting(null); }
@@ -38,8 +40,8 @@ export default function StudentHomeworkPage() {
       <div className="space-y-5 max-w-4xl mx-auto">
 
         <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', stiffness: 280, damping: 24 }}>
-          <h1 className="section-header">Homework</h1>
-          <p className="section-subheader">{homework.filter(h => h.status === 'pending').length} pending assignments</p>
+          <h1 className="section-header">{t('homework')}</h1>
+          <p className="section-subheader">{homework.filter(h => h.status === 'pending').length} {t('submissions').toLowerCase()} pending</p>
         </motion.div>
 
         <div className="space-y-4">
@@ -58,7 +60,7 @@ export default function StudentHomeworkPage() {
               <div className="icon-box-lg bg-amber-500/5 border border-amber-500/10 mx-auto mb-4">
                 <ClipboardList className="w-6 h-6 text-amber-400/40" />
               </div>
-              <p className="text-sm text-muted-foreground">No homework assigned yet</p>
+              <p className="text-sm text-muted-foreground">{t('noHomework')}</p>
             </div>
           ) : homework.map((h, i) => (
             <motion.div key={h._id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
@@ -70,7 +72,7 @@ export default function StudentHomeworkPage() {
                   <h3 className="font-bold text-foreground">{h.title}</h3>
                   {h.description && <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{h.description}</p>}
                   <p className="text-xs text-muted-foreground mt-1.5">
-                    Due: {h.dueDate ? new Date(h.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
+                    {t('due')}: {h.dueDate ? new Date(h.dueDate).toLocaleDateString() : '—'}
                   </p>
                 </div>
                 <span className={cn('badge text-[10px] shrink-0 ml-3 capitalize', STATUS_BADGE[h.status || 'pending'])}>
@@ -87,7 +89,7 @@ export default function StudentHomeworkPage() {
                     {submitting === h._id
                       ? <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       : <Send className="w-3.5 h-3.5" />}
-                    {submitting === h._id ? 'Submitting…' : 'Submit'}
+                    {submitting === h._id ? t('saving') : t('save')}
                   </button>
                 </div>
               )}

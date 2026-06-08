@@ -5,10 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Bell, Search, X, ChevronRight, Menu,
   GraduationCap, ClipboardCheck, BookOpen,
-  DollarSign, AlertCircle, CheckCircle2, Info, Globe,
+  DollarSign, AlertCircle, CheckCircle2, Info,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
-import { useLanguageStore } from '@/store/languageStore';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
@@ -213,10 +212,8 @@ interface SMSTopbarProps {
 
 export default function SMSTopbar({ onMenuToggle }: SMSTopbarProps) {
   const { user } = useAuthStore();
-  const { lang, toggle: toggleLang } = useLanguageStore();
   const t = useT();
   const pathname = usePathname();
-  const isAr = lang === 'ar';
 
   const [searchOpen,   setSearchOpen]   = useState(false);
   const [searchQuery,  setSearchQuery]  = useState('');
@@ -363,21 +360,6 @@ export default function SMSTopbar({ onMenuToggle }: SMSTopbarProps) {
             </motion.button>
           )}
         </AnimatePresence>
-
-        {/* ── Language toggle ────────────────────────────── */}
-        <motion.button
-          onClick={toggleLang}
-          whileTap={{ scale: 0.92 }}
-          className={cn(
-            'btn-icon gap-1.5 px-2.5 w-auto font-bold text-xs',
-            isAr && 'bg-primary/10 border-primary/30 text-primary'
-          )}
-          aria-label={isAr ? t('switchToEnglish') : t('switchToArabic')}
-          title={isAr ? t('switchToEnglish') : t('switchToArabic')}
-        >
-          <Globe className="w-3.5 h-3.5 shrink-0" />
-          <span className="hidden xs:inline">{isAr ? 'EN' : 'AR'}</span>
-        </motion.button>
 
         {/* ── Notification bell ──────────────────────────── */}
         <div ref={notifRef} className="relative">

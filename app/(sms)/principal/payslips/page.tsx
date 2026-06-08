@@ -5,6 +5,7 @@ import { Wallet, DollarSign } from 'lucide-react';
 import SMSLayout from '@/components/sms/SMSLayout';
 import { principalAPI } from '@/services/api';
 import { cn } from '@/lib/utils';
+import { useT } from '@/lib/i18n';
 
 interface Payslip { _id: string; month: string; amount: number; currency: string; status: string; paidAt?: string; description?: string }
 
@@ -17,6 +18,7 @@ export default function PrincipalPayslipsPage() {
   }, []);
 
   const total = payslips.reduce((s, p) => s + p.amount, 0);
+  const t = useT();
 
   return (
     <SMSLayout allowedRoles={['principal']}>
@@ -28,8 +30,8 @@ export default function PrincipalPayslipsPage() {
             <Wallet className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="section-header">My Payslips</h1>
-            <p className="section-subheader">Salary &amp; pension history</p>
+            <h1 className="section-header">{t('payslips')}</h1>
+            <p className="section-subheader">{t('payments')} &amp; {t('payslips').toLowerCase()}</p>
           </div>
         </motion.div>
 
@@ -38,7 +40,7 @@ export default function PrincipalPayslipsPage() {
             <div className="glow-line-top" />
             <div className="flex items-center gap-2 mb-1">
               <DollarSign className="w-4 h-4 text-violet-400" />
-              <p className="text-xs text-muted-foreground uppercase font-semibold tracking-wide">Total Earned</p>
+              <p className="text-xs text-muted-foreground uppercase font-semibold tracking-wide">{t('payments')}</p>
             </div>
             <p className="text-3xl font-extrabold text-violet-400 tabular-nums">${total.toLocaleString()}</p>
           </motion.div>
@@ -46,7 +48,7 @@ export default function PrincipalPayslipsPage() {
             <div className="glow-line-top" />
             <div className="flex items-center gap-2 mb-1">
               <Wallet className="w-4 h-4 text-muted-foreground" />
-              <p className="text-xs text-muted-foreground uppercase font-semibold tracking-wide">Payslip Count</p>
+              <p className="text-xs text-muted-foreground uppercase font-semibold tracking-wide">{t('payslips')}</p>
             </div>
             <p className="text-3xl font-extrabold text-foreground tabular-nums">{payslips.length}</p>
           </motion.div>
@@ -58,7 +60,7 @@ export default function PrincipalPayslipsPage() {
           <div className="overflow-x-auto">
             <table className="data-table">
               <thead>
-                <tr>{['Month', 'Description', 'Amount', 'Status', 'Paid On'].map(h => <th key={h}>{h}</th>)}</tr>
+                <tr>{[t('term'), t('description'), t('payments'), 'Status', t('due')].map(h => <th key={h}>{h}</th>)}</tr>
               </thead>
               <tbody>
                 {loading ? Array.from({ length: 4 }).map((_, i) => (
@@ -71,7 +73,7 @@ export default function PrincipalPayslipsPage() {
                       <div className="icon-box-lg bg-violet-500/5 border border-violet-500/10">
                         <Wallet className="w-6 h-6 text-violet-400/40" />
                       </div>
-                      <p className="text-sm text-muted-foreground">No payslips available yet</p>
+                      <p className="text-sm text-muted-foreground">{t('noData')}</p>
                     </div>
                   </td></tr>
                 ) : payslips.map((p, i) => (

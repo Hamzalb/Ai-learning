@@ -6,6 +6,7 @@ import SMSLayout from '@/components/sms/SMSLayout';
 import { studentAPI } from '@/services/api';
 import { Grade } from '@/types';
 import { cn } from '@/lib/utils';
+import { useT } from '@/lib/i18n';
 
 const TYPE_BADGE: Record<string, string> = {
   quiz:          'badge-violet',
@@ -18,6 +19,7 @@ const TYPE_BADGE: Record<string, string> = {
 export default function StudentGradesPage() {
   const [grades,  setGrades]  = useState<Grade[]>([]);
   const [loading, setLoading] = useState(true);
+  const t = useT();
 
   useEffect(() => {
     studentAPI.getGrades().then(r => setGrades(r.data.data.grades)).finally(() => setLoading(false));
@@ -32,8 +34,8 @@ export default function StudentGradesPage() {
       <div className="space-y-5 max-w-4xl mx-auto">
 
         <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', stiffness: 280, damping: 24 }}>
-          <h1 className="section-header">My Grades</h1>
-          <p className="section-subheader">{grades.length} grades recorded</p>
+          <h1 className="section-header">{t('grades')}</h1>
+          <p className="section-subheader">{grades.length} {t('grades').toLowerCase()} recorded</p>
         </motion.div>
 
         {!loading && grades.length > 0 && (
@@ -43,12 +45,12 @@ export default function StudentGradesPage() {
             <div className="flex items-center gap-6 flex-wrap">
               <div className="text-center">
                 <p className="text-5xl font-extrabold text-foreground tabular-nums">{avg}%</p>
-                <p className="text-xs text-muted-foreground mt-1">Overall Average</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('overview')}</p>
               </div>
               <div className="h-16 w-px bg-white/[0.06] hidden sm:block" />
               <div className="text-center">
                 <p className={cn('text-5xl font-extrabold tabular-nums', pass ? 'text-emerald-400' : 'text-rose-400')}>{getLetterGrade(avg)}</p>
-                <p className="text-xs text-muted-foreground mt-1">Letter Grade</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('gradeType')}</p>
               </div>
               <div className="flex-1 min-w-[120px]">
                 <div className="h-3 rounded-full bg-white/[0.04] overflow-hidden">
@@ -67,7 +69,7 @@ export default function StudentGradesPage() {
           <div className="overflow-x-auto">
             <table className="data-table">
               <thead>
-                <tr>{['Type', 'Score', 'Out of', 'Percentage', 'Term', 'Date'].map(h => <th key={h}>{h}</th>)}</tr>
+                <tr>{[t('gradeType'), t('score'), t('maxScore'), '%', t('term'), 'Date'].map(h => <th key={h}>{h}</th>)}</tr>
               </thead>
               <tbody>
                 {loading ? Array.from({ length: 5 }).map((_, i) => (
@@ -80,7 +82,7 @@ export default function StudentGradesPage() {
                       <div className="icon-box-lg bg-indigo-500/5 border border-indigo-500/10">
                         <BarChart3 className="w-6 h-6 text-indigo-400/40" />
                       </div>
-                      <p className="text-sm text-muted-foreground">No grades recorded yet</p>
+                      <p className="text-sm text-muted-foreground">{t('noGrades')}</p>
                     </div>
                   </td></tr>
                 ) : grades.map((g, i) => {

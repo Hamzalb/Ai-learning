@@ -5,6 +5,7 @@ import { Users, ChevronRight, Home } from 'lucide-react';
 import Link from 'next/link';
 import SMSLayout from '@/components/sms/SMSLayout';
 import { teacherAPI } from '@/services/api';
+import { useT } from '@/lib/i18n';
 
 interface ClassWithCount {
   _id: string;
@@ -17,6 +18,7 @@ interface ClassWithCount {
 export default function TeacherClassesPage() {
   const [classes,  setClasses]  = useState<ClassWithCount[]>([]);
   const [loading,  setLoading]  = useState(true);
+  const t = useT();
 
   useEffect(() => {
     teacherAPI.getClasses()
@@ -34,9 +36,9 @@ export default function TeacherClassesPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: 'spring', stiffness: 280, damping: 24 }}
         >
-          <h1 className="section-header">My Classes</h1>
+          <h1 className="section-header">{t('myClasses')}</h1>
           <p className="section-subheader">
-            {loading ? 'Loading your classrooms…' : `${classes.length} classroom${classes.length !== 1 ? 's' : ''} assigned to you`}
+            {loading ? t('loading') : `${classes.length} ${t('classrooms').toLowerCase()} assigned`}
           </p>
         </motion.div>
 
@@ -70,8 +72,8 @@ export default function TeacherClassesPage() {
             <div className="icon-box-lg bg-emerald-500/5 border border-emerald-500/10 mx-auto mb-4">
               <Home className="w-6 h-6 text-emerald-400/40" />
             </div>
-            <p className="text-sm font-semibold text-foreground mb-1">No classes assigned yet</p>
-            <p className="text-xs text-muted-foreground">Contact your school principal to be assigned to classrooms.</p>
+            <p className="text-sm font-semibold text-foreground mb-1">{t('noClassrooms')}</p>
+            <p className="text-xs text-muted-foreground">{t('noActiveTeachers')}</p>
           </motion.div>
         ) : (
           /* Class grid */
@@ -103,13 +105,13 @@ export default function TeacherClassesPage() {
                   <div className="flex items-center justify-between mb-3">
                     <div className="text-sm">
                       <span className="text-2xl font-extrabold text-foreground tabular-nums">{c.studentCount}</span>
-                      <span className="text-muted-foreground ml-1 text-xs">/ {c.capacity} students</span>
+                      <span className="text-muted-foreground ml-1 text-xs">/ {c.capacity} {t('students').toLowerCase()}</span>
                     </div>
                     <Link
                       href={`/teacher/classes/${c._id}`}
                       className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 font-semibold transition-colors group"
                     >
-                      View Roster
+                      {t('manage')}
                       <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                     </Link>
                   </div>
@@ -123,7 +125,7 @@ export default function TeacherClassesPage() {
                       className={`h-full rounded-full bg-gradient-to-r ${barColor}`}
                     />
                   </div>
-                  <p className="text-[10px] text-muted-foreground mt-1.5">{pct}% capacity</p>
+                  <p className="text-[10px] text-muted-foreground mt-1.5">{pct}% {t('capacity').toLowerCase()}</p>
                 </motion.div>
               );
             })}

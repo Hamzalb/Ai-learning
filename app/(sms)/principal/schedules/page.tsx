@@ -6,6 +6,7 @@ import SMSLayout from '@/components/sms/SMSLayout';
 import { principalAPI } from '@/services/api';
 import { Classroom, Subject } from '@/types';
 import toast from 'react-hot-toast';
+import { useT } from '@/lib/i18n';
 
 const DAYS    = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 const PERIODS = ['Period 1', 'Period 2', 'Period 3', 'Period 4', 'Period 5', 'Period 6'];
@@ -16,6 +17,7 @@ export default function SchedulesPage() {
   const [selectedClassroom,  setSelectedClassroom]  = useState('');
   const [grid,               setGrid]               = useState<Record<string, string>>({});
   const [saving,             setSaving]             = useState(false);
+  const t = useT();
 
   useEffect(() => {
     Promise.all([principalAPI.getClassrooms(), principalAPI.getSubjects()]).then(([cr, sr]) => {
@@ -44,7 +46,7 @@ export default function SchedulesPage() {
     setSaving(true);
     try {
       await principalAPI.upsertSchedule({ classroomId: selectedClassroom, slots });
-      toast.success('Schedule saved');
+      toast.success(t('saveSchedule'));
     } catch { toast.error('Failed to save schedule'); }
     finally { setSaving(false); }
   };
@@ -63,13 +65,13 @@ export default function SchedulesPage() {
         <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', stiffness: 280, damping: 24 }}
           className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h1 className="section-header">Weekly Schedule</h1>
-            <p className="section-subheader">Build timetables per classroom</p>
+            <h1 className="section-header">{t('weeklySchedule')}</h1>
+            <p className="section-subheader">{t('buildTimetables')}</p>
           </div>
           {selectedClassroom && (
             <button onClick={handleSave} disabled={saving} className="btn-gradient gap-2 disabled:opacity-60">
               {saving ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Save className="w-4 h-4" />}
-              {saving ? 'Saving…' : 'Save Schedule'}
+              {saving ? t('saving') : t('saveSchedule')}
             </button>
           )}
         </motion.div>
@@ -78,7 +80,7 @@ export default function SchedulesPage() {
           <CalendarDays className="w-4 h-4 text-muted-foreground/60 shrink-0" />
           <select value={selectedClassroom} onChange={e => { setSelectedClassroom(e.target.value); setGrid({}); }}
             className="input-field max-w-xs">
-            <option value="">Select a classroom...</option>
+            <option value="">{t('selectClassroom')}</option>
             {classrooms.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
           </select>
         </div>
@@ -89,7 +91,7 @@ export default function SchedulesPage() {
             <div className="icon-box-lg bg-sky-500/5 border border-sky-500/10 mx-auto mb-4">
               <CalendarDays className="w-6 h-6 text-sky-400/40" />
             </div>
-            <p className="text-sm text-muted-foreground">Select a classroom above to build its weekly timetable</p>
+            <p className="text-sm text-muted-foreground">{t('selectClassroom')}</p>
           </div>
         )}
 
@@ -124,7 +126,7 @@ export default function SchedulesPage() {
                                 border:          `1px solid ${subject ? `${subject.color}35` : 'rgba(255,255,255,0.06)'}`,
                                 color:           subject ? subject.color : 'var(--muted-foreground)',
                               }}>
-                              <option value="">Free</option>
+                              <option value="">{t('free')}</option>
                               {classroomSubjects.map(s => <option key={s._id} value={s._id}>{s.name}</option>)}
                             </select>
                           </td>
