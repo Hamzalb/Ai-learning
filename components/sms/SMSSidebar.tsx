@@ -10,11 +10,12 @@ import {
   ClipboardCheck, X,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
+import { useT } from '@/lib/i18n';
 import { UserRole } from '@/types';
 import { cn } from '@/lib/utils';
 
 interface NavItem {
-  label: string;
+  labelKey: string;
   href: string;
   icon: React.ElementType;
   badge?: string;
@@ -22,86 +23,61 @@ interface NavItem {
 
 const NAV_ITEMS: Record<UserRole, NavItem[]> = {
   super_admin: [
-    { label: 'Dashboard',   href: '/super-admin/dashboard',   icon: LayoutDashboard },
-    { label: 'Schools',     href: '/super-admin/schools',     icon: Building2 },
-    { label: 'Teachers',    href: '/super-admin/teachers',    icon: BookOpen },
-    { label: 'Students',    href: '/super-admin/students',    icon: Users },
-    { label: 'Principals',  href: '/super-admin/principals',  icon: UserCheck },
-    { label: 'Permissions', href: '/super-admin/permissions', icon: Shield },
-    { label: 'Audit Logs',  href: '/super-admin/audit-logs',  icon: FileText },
+    { labelKey: 'dashboard',  href: '/super-admin/dashboard',   icon: LayoutDashboard },
+    { labelKey: 'schools',    href: '/super-admin/schools',     icon: Building2 },
+    { labelKey: 'teachers',   href: '/super-admin/teachers',    icon: BookOpen },
+    { labelKey: 'students',   href: '/super-admin/students',    icon: Users },
+    { labelKey: 'principals', href: '/super-admin/principals',  icon: UserCheck },
+    { labelKey: 'permissions',href: '/super-admin/permissions', icon: Shield },
+    { labelKey: 'auditLogs',  href: '/super-admin/audit-logs',  icon: FileText },
   ],
   school: [
-    { label: 'Dashboard',  href: '/school/dashboard',  icon: LayoutDashboard },
-    { label: 'Teachers',   href: '/school/teachers',   icon: BookOpen },
-    { label: 'Students',   href: '/school/students',   icon: Users },
-    { label: 'Principals', href: '/school/principals', icon: UserCheck },
-    { label: 'Settings',   href: '/school/settings',   icon: Settings },
+    { labelKey: 'dashboard',  href: '/school/dashboard',  icon: LayoutDashboard },
+    { labelKey: 'teachers',   href: '/school/teachers',   icon: BookOpen },
+    { labelKey: 'students',   href: '/school/students',   icon: Users },
+    { labelKey: 'principals', href: '/school/principals', icon: UserCheck },
+    { labelKey: 'settings',   href: '/school/settings',   icon: Settings },
   ],
   principal: [
-    { label: 'Dashboard',   href: '/principal/dashboard',  icon: LayoutDashboard },
-    { label: 'Classrooms',  href: '/principal/classrooms', icon: Home },
-    { label: 'Subjects',    href: '/principal/subjects',   icon: BookOpen },
-    { label: 'Schedules',   href: '/principal/schedules',  icon: CalendarDays },
-    { label: 'Payslips',    href: '/principal/payslips',   icon: DollarSign },
+    { labelKey: 'dashboard',  href: '/principal/dashboard',  icon: LayoutDashboard },
+    { labelKey: 'classrooms', href: '/principal/classrooms', icon: Home },
+    { labelKey: 'subjects',   href: '/principal/subjects',   icon: BookOpen },
+    { labelKey: 'schedules',  href: '/principal/schedules',  icon: CalendarDays },
+    { labelKey: 'payslips',   href: '/principal/payslips',   icon: DollarSign },
   ],
   teacher: [
-    { label: 'Dashboard',   href: '/teacher/dashboard',  icon: LayoutDashboard },
-    { label: 'My Classes',  href: '/teacher/classes',    icon: Home },
-    { label: 'Grades',      href: '/teacher/grades',     icon: BarChart3 },
-    { label: 'Documents',   href: '/teacher/documents',  icon: FileText },
-    { label: 'Quizzes',     href: '/teacher/quizzes',    icon: FileQuestion },
-    { label: 'Homework',    href: '/teacher/homework',   icon: ClipboardList },
-    { label: 'Payslips',    href: '/teacher/payslips',   icon: DollarSign },
+    { labelKey: 'dashboard',  href: '/teacher/dashboard',  icon: LayoutDashboard },
+    { labelKey: 'myClasses',  href: '/teacher/classes',    icon: Home },
+    { labelKey: 'grades',     href: '/teacher/grades',     icon: BarChart3 },
+    { labelKey: 'documents',  href: '/teacher/documents',  icon: FileText },
+    { labelKey: 'quizzes',    href: '/teacher/quizzes',    icon: FileQuestion },
+    { labelKey: 'homework',   href: '/teacher/homework',   icon: ClipboardList },
+    { labelKey: 'payslips',   href: '/teacher/payslips',   icon: DollarSign },
   ],
   student: [
-    { label: 'Dashboard',  href: '/student/dashboard',  icon: LayoutDashboard },
-    { label: 'Documents',  href: '/student/documents',  icon: FileText },
-    { label: 'Quizzes',    href: '/student/quizzes',    icon: FileQuestion },
-    { label: 'Grades',     href: '/student/grades',     icon: BarChart3 },
-    { label: 'Attendance', href: '/student/attendance', icon: ClipboardCheck },
-    { label: 'Calendar',   href: '/student/calendar',   icon: CalendarDays },
-    { label: 'Homework',   href: '/student/homework',   icon: ClipboardList },
-    { label: 'Payments',   href: '/student/payments',   icon: DollarSign },
-    { label: 'AI Tutor',   href: '/student/ai',         icon: Brain, badge: 'AI' },
+    { labelKey: 'dashboard',  href: '/student/dashboard',  icon: LayoutDashboard },
+    { labelKey: 'documents',  href: '/student/documents',  icon: FileText },
+    { labelKey: 'quizzes',    href: '/student/quizzes',    icon: FileQuestion },
+    { labelKey: 'grades',     href: '/student/grades',     icon: BarChart3 },
+    { labelKey: 'attendance', href: '/student/attendance', icon: ClipboardCheck },
+    { labelKey: 'calendar',   href: '/student/calendar',   icon: CalendarDays },
+    { labelKey: 'homework',   href: '/student/homework',   icon: ClipboardList },
+    { labelKey: 'payments',   href: '/student/payments',   icon: DollarSign },
+    { labelKey: 'aiTutor',    href: '/student/ai',         icon: Brain, badge: 'AI' },
   ],
 };
 
 const ROLE_CONFIG: Record<UserRole, {
-  label: string;
+  labelKey: string;
   gradient: string;
   glow: string;
   accent: string;
 }> = {
-  super_admin: {
-    label: 'Super Admin',
-    gradient: 'from-rose-500 via-orange-500 to-amber-500',
-    glow: 'shadow-rose-500/30',
-    accent: 'text-rose-400',
-  },
-  school: {
-    label: 'School Admin',
-    gradient: 'from-sky-500 via-cyan-500 to-teal-500',
-    glow: 'shadow-sky-500/30',
-    accent: 'text-sky-400',
-  },
-  principal: {
-    label: 'Principal',
-    gradient: 'from-violet-500 via-purple-500 to-indigo-500',
-    glow: 'shadow-violet-500/30',
-    accent: 'text-violet-400',
-  },
-  teacher: {
-    label: 'Teacher',
-    gradient: 'from-emerald-500 via-green-500 to-teal-500',
-    glow: 'shadow-emerald-500/30',
-    accent: 'text-emerald-400',
-  },
-  student: {
-    label: 'Student',
-    gradient: 'from-indigo-500 via-violet-500 to-purple-500',
-    glow: 'shadow-indigo-500/30',
-    accent: 'text-indigo-400',
-  },
+  super_admin: { labelKey: 'roleSuperAdmin', gradient: 'from-rose-500 via-orange-500 to-amber-500', glow: 'shadow-rose-500/30',    accent: 'text-rose-400' },
+  school:      { labelKey: 'roleSchool',     gradient: 'from-sky-500 via-cyan-500 to-teal-500',     glow: 'shadow-sky-500/30',     accent: 'text-sky-400' },
+  principal:   { labelKey: 'rolePrincipal',  gradient: 'from-violet-500 via-purple-500 to-indigo-500', glow: 'shadow-violet-500/30', accent: 'text-violet-400' },
+  teacher:     { labelKey: 'roleTeacher',    gradient: 'from-emerald-500 via-green-500 to-teal-500',  glow: 'shadow-emerald-500/30', accent: 'text-emerald-400' },
+  student:     { labelKey: 'roleStudent',    gradient: 'from-indigo-500 via-violet-500 to-purple-500', glow: 'shadow-indigo-500/30',  accent: 'text-indigo-400' },
 };
 
 const SIDEBAR_STYLE = {
@@ -124,6 +100,7 @@ function SidebarContent({
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const pathname = usePathname();
   const { user, logout } = useAuthStore();
+  const t = useT();
   const role = user?.role as UserRole;
   const items = NAV_ITEMS[role] || [];
   const config = ROLE_CONFIG[role] || ROLE_CONFIG.student;
@@ -137,7 +114,7 @@ function SidebarContent({
       {onCollapse && (
         <button
           onClick={onCollapse}
-          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          aria-label={collapsed ? t('expandMenu') : t('collapseMenu')}
           className={cn(
             'absolute -right-3 top-8 z-20',
             'w-6 h-6 rounded-full flex items-center justify-center',
@@ -156,7 +133,7 @@ function SidebarContent({
       {onClose && (
         <button
           onClick={onClose}
-          aria-label="Close navigation"
+          aria-label={t('closeNav')}
           className={cn(
             'absolute right-3 top-4 z-20',
             'w-8 h-8 rounded-xl flex items-center justify-center',
@@ -168,7 +145,7 @@ function SidebarContent({
         </button>
       )}
 
-      {/* ── Header / Logo ─────────────────────────────────── */}
+      {/* ── Logo / Header ─────────────────────────────────── */}
       <div className="flex items-center gap-3 px-4 py-5 min-h-[72px]">
         <div className={cn(
           'w-10 h-10 rounded-2xl bg-gradient-to-br flex items-center justify-center shrink-0',
@@ -193,7 +170,7 @@ function SidebarContent({
               <div className="flex items-center gap-1.5 mt-0.5">
                 <Sparkles className={cn('w-2.5 h-2.5', config.accent)} />
                 <p className={cn('text-[10px] font-semibold uppercase tracking-wider', config.accent)}>
-                  {config.label}
+                  {t(config.labelKey as Parameters<typeof t>[0])}
                 </p>
               </div>
             </motion.div>
@@ -205,10 +182,11 @@ function SidebarContent({
       <div className="h-px mx-4 bg-white/[0.05]" />
 
       {/* ── Navigation ────────────────────────────────────── */}
-      <nav className="flex-1 overflow-y-auto px-2.5 py-3 space-y-0.5">
+      <nav className="flex-1 overflow-y-auto px-2.5 py-3 space-y-0.5" aria-label="Main navigation">
         {items.map((item) => {
           const active = pathname === item.href ||
             (item.href !== `/${role}/dashboard` && pathname.startsWith(item.href));
+          const label = t(item.labelKey as Parameters<typeof t>[0], item.labelKey);
 
           return (
             <div
@@ -237,9 +215,7 @@ function SidebarContent({
                       'bg-gradient-to-r from-white/[0.07] to-white/[0.04]',
                       'border border-white/[0.08]',
                     )}
-                    style={{
-                      boxShadow: `inset 0 0 0 1px hsl(var(--primary) / 0.12)`,
-                    }}
+                    style={{ boxShadow: `inset 0 0 0 1px hsl(var(--primary) / 0.12)` }}
                     transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                   />
                 )}
@@ -273,7 +249,7 @@ function SidebarContent({
                       transition={{ duration: 0.15 }}
                       className="relative z-10 truncate flex-1"
                     >
-                      {item.label}
+                      {label}
                     </motion.span>
                   )}
                 </AnimatePresence>
@@ -304,7 +280,7 @@ function SidebarContent({
                   animate={{ opacity: 1, x: 0 }}
                   className="tooltip"
                 >
-                  {item.label}
+                  {label}
                   {item.badge && (
                     <span className="ml-1.5 text-[9px] font-bold px-1 py-0.5 rounded bg-indigo-500/20 text-indigo-400">
                       {item.badge}
@@ -322,7 +298,6 @@ function SidebarContent({
 
       {/* ── User Section ──────────────────────────────────── */}
       <div className="p-2.5 space-y-1">
-        {/* User info */}
         <div className={cn(
           'flex items-center gap-3 px-3 py-2.5 rounded-xl',
           !collapsed && 'bg-white/[0.02] border border-white/[0.04]',
@@ -335,7 +310,6 @@ function SidebarContent({
             )}>
               {user?.name?.charAt(0)?.toUpperCase() || 'U'}
             </div>
-            {/* Online indicator */}
             <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[hsl(240_42%_5.5%)]" />
           </div>
 
@@ -348,25 +322,19 @@ function SidebarContent({
                 transition={{ duration: 0.15 }}
                 className="min-w-0 flex-1"
               >
-                <p className="text-xs font-bold text-foreground truncate">
-                  {user?.name || 'User'}
-                </p>
-                <p className="text-[10px] text-muted-foreground truncate">
-                  {user?.email}
-                </p>
+                <p className="text-xs font-bold text-foreground truncate">{user?.name || 'User'}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{user?.email}</p>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
-        {/* Sign out */}
         <button
           onClick={logout}
           className={cn(
             'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium',
             'text-muted-foreground hover:text-rose-400',
-            'hover:bg-rose-500/[0.08] transition-all duration-200',
-            'group',
+            'hover:bg-rose-500/[0.08] transition-all duration-200 group',
           )}
         >
           <LogOut
@@ -381,7 +349,7 @@ function SidebarContent({
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.15 }}
               >
-                Sign out
+                {t('signOut')}
               </motion.span>
             )}
           </AnimatePresence>
@@ -410,7 +378,7 @@ export default function SMSSidebar({ mobileOpen = false, onMobileClose }: SMSSid
 
   return (
     <>
-      {/* ── Desktop sidebar (hidden below lg breakpoint) ── */}
+      {/* Desktop sidebar */}
       <motion.aside
         animate={{ width: collapsed ? 68 : 232 }}
         transition={{ type: 'spring', stiffness: 320, damping: 30 }}
@@ -424,7 +392,7 @@ export default function SMSSidebar({ mobileOpen = false, onMobileClose }: SMSSid
         />
       </motion.aside>
 
-      {/* ── Mobile sidebar drawer (fixed overlay, lg:hidden) ── */}
+      {/* Mobile sidebar drawer */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.aside

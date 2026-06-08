@@ -6,6 +6,7 @@ import SMSLayout from '@/components/sms/SMSLayout';
 import { principalAPI } from '@/services/api';
 import { Subject, Classroom, User } from '@/types';
 import toast from 'react-hot-toast';
+import { useT } from '@/lib/i18n';
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6'];
 const EMPTY = { name: '', classroomId: '', teacherId: '', color: '#6366f1' };
@@ -18,6 +19,7 @@ export default function SubjectsPage() {
   const [showForm,   setShowForm]   = useState(false);
   const [form,       setForm]       = useState(EMPTY);
   const [saving,     setSaving]     = useState(false);
+  const t = useT();
 
   const load = async () => {
     const [sr, cr, tr] = await Promise.all([principalAPI.getSubjects(), principalAPI.getClassrooms(), principalAPI.getTeachers()]);
@@ -29,34 +31,35 @@ export default function SubjectsPage() {
   useEffect(() => { load(); }, []);
 
   const handleCreate = async () => {
-    if (!form.name) { toast.error('Subject name required'); return; }
+    if (!form.name) { toast.error(t('subjectName') + ' required'); return; }
     setSaving(true);
     try {
       await principalAPI.createSubject(form);
-      toast.success('Subject created');
+      toast.success(t('createSubject'));
       setShowForm(false); setForm(EMPTY); load();
     } catch { toast.error('Failed to create subject'); }
     finally { setSaving(false); }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Delete this subject?')) return;
+    if (!confirm(t('delete') + '?')) return;
     await principalAPI.deleteSubject(id);
-    toast.success('Subject deleted'); load();
+    toast.success(t('delete')); load();
   };
 
   return (
     <SMSLayout allowedRoles={['principal']}>
       <div className="space-y-5 max-w-5xl mx-auto">
 
-        <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', stiffness: 280, damping: 24 }}
+        <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ type: 'spring', stiffness: 280, damping: 24 }}
           className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h1 className="section-header">Subjects</h1>
-            <p className="section-subheader">{subjects.length} subjects defined</p>
+            <h1 className="section-header">{t('subjects')}</h1>
+            <p className="section-subheader">{subjects.length} {t('noSubjects').toLowerCase()}</p>
           </div>
           <button onClick={() => setShowForm(s => !s)} className="btn-gradient gap-2">
-            <Plus className="w-4 h-4" /> New Subject
+            <Plus className="w-4 h-4" /> {t('newSubject')}
           </button>
         </motion.div>
 
@@ -67,30 +70,30 @@ export default function SubjectsPage() {
               className="glass-card p-6">
               <div className="glow-line-top" />
               <div className="flex items-center justify-between mb-5">
-                <h3 className="font-bold text-foreground">Create Subject</h3>
+                <h3 className="font-bold text-foreground">{t('createSubject')}</h3>
                 <button onClick={() => { setShowForm(false); setForm(EMPTY); }} className="btn-icon"><X className="w-4 h-4" /></button>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
                 <div>
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">Subject Name</label>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">{t('subjectName')}</label>
                   <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Mathematics" className="input-field" />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">Classroom</label>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">{t('classroom')}</label>
                   <select value={form.classroomId} onChange={e => setForm(f => ({ ...f, classroomId: e.target.value }))} className="input-field appearance-none">
-                    <option value="">Select classroom...</option>
+                    <option value="">{t('selectClassroom')}</option>
                     {classrooms.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">Teacher</label>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">{t('teacher')}</label>
                   <select value={form.teacherId} onChange={e => setForm(f => ({ ...f, teacherId: e.target.value }))} className="input-field appearance-none">
-                    <option value="">Select teacher...</option>
-                    {teachers.map(t => <option key={t._id} value={t._id}>{t.name}</option>)}
+                    <option value="">{t('selectTeacher')}</option>
+                    {teachers.map(tr => <option key={tr._id} value={tr._id}>{tr.name}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">Accent Color</label>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">{t('accentColor')}</label>
                   <div className="flex gap-2 flex-wrap pt-1">
                     {COLORS.map(c => (
                       <button key={c} type="button" onClick={() => setForm(f => ({ ...f, color: c }))}
@@ -104,9 +107,9 @@ export default function SubjectsPage() {
               <div className="flex gap-3">
                 <button onClick={handleCreate} disabled={saving} className="btn-gradient gap-2 disabled:opacity-60">
                   {saving ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Plus className="w-4 h-4" />}
-                  {saving ? 'Creating…' : 'Create Subject'}
+                  {saving ? t('creating') : t('createSubject')}
                 </button>
-                <button onClick={() => { setShowForm(false); setForm(EMPTY); }} className="btn-ghost">Cancel</button>
+                <button onClick={() => { setShowForm(false); setForm(EMPTY); }} className="btn-ghost">{t('cancel')}</button>
               </div>
             </motion.div>
           )}
@@ -126,14 +129,14 @@ export default function SubjectsPage() {
               <div className="icon-box-lg bg-indigo-500/5 border border-indigo-500/10 mx-auto mb-4">
                 <BookMarked className="w-6 h-6 text-indigo-400/40" />
               </div>
-              <p className="text-sm text-muted-foreground">No subjects defined yet</p>
+              <p className="text-sm text-muted-foreground">{t('noSubjects')}</p>
               <button onClick={() => setShowForm(true)} className="btn-gradient gap-2 mt-4">
-                <Plus className="w-4 h-4" /> Create First Subject
+                <Plus className="w-4 h-4" /> {t('createSubject')}
               </button>
             </div>
           ) : subjects.map((s, i) => {
             const classroom = classrooms.find(c => c._id === s.classroomId);
-            const teacher   = teachers.find(t => t._id === s.teacherId);
+            const teacher   = teachers.find(tr => tr._id === s.teacherId);
             return (
               <motion.div key={s._id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: i * 0.05, type: 'spring', stiffness: 280, damping: 24 }}
@@ -143,7 +146,7 @@ export default function SubjectsPage() {
                   <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-foreground">{s.name}</h3>
                     <p className="text-xs text-muted-foreground mt-1 truncate">{classroom?.name || '—'}</p>
-                    <p className="text-xs text-muted-foreground truncate">{teacher?.name || 'No teacher assigned'}</p>
+                    <p className="text-xs text-muted-foreground truncate">{teacher?.name || t('unassigned')}</p>
                   </div>
                   <button onClick={() => handleDelete(s._id)} className="btn-icon hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/20 shrink-0 ml-2">
                     <Trash2 className="w-3.5 h-3.5" />
@@ -151,7 +154,7 @@ export default function SubjectsPage() {
                 </div>
                 <div className="mt-3 pt-3 border-t border-white/[0.04] flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
-                  <span className="text-xs font-medium" style={{ color: s.color }}>Color tag</span>
+                  <span className="text-xs font-medium" style={{ color: s.color }}>{t('accentColor')}</span>
                 </div>
               </motion.div>
             );

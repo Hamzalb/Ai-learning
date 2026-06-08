@@ -5,9 +5,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Bell, Search, X, ChevronRight, Menu,
   GraduationCap, ClipboardCheck, BookOpen,
-  DollarSign, AlertCircle, CheckCircle2, Info,
+  DollarSign, AlertCircle, CheckCircle2, Info, Globe,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
+import { useLanguageStore } from '@/store/languageStore';
+import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
 /* ──────────────────────────────────────────────────────────
@@ -87,6 +89,7 @@ function NotificationPanel({
   onClose: () => void;
 }) {
   const unread = notifs.filter(n => !n.read).length;
+  const t = useT();
 
   return (
     <motion.div
@@ -104,7 +107,7 @@ function NotificationPanel({
       <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-white/[0.05]">
         <div className="flex items-center gap-2.5">
           <Bell className="w-4 h-4 text-primary" />
-          <span className="font-bold text-sm text-foreground">Notifications</span>
+          <span className="font-bold text-sm text-foreground">{t('notifications')}</span>
           {unread > 0 && (
             <span className="badge badge-violet text-[10px] px-1.5 py-0.5 leading-none">
               {unread}
@@ -117,7 +120,7 @@ function NotificationPanel({
               onClick={onMarkAll}
               className="text-[11px] text-primary hover:text-primary/80 font-semibold transition-colors px-2 py-1 rounded-lg hover:bg-primary/10"
             >
-              Mark all read
+              {t('markAllRead')}
             </button>
           )}
           <button onClick={onClose} className="btn-icon w-7 h-7">
@@ -133,7 +136,7 @@ function NotificationPanel({
             <div className="icon-box-lg bg-white/[0.03] border border-white/[0.06]">
               <CheckCircle2 className="w-5 h-5 text-emerald-400/50" />
             </div>
-            <p className="text-xs text-muted-foreground">All caught up!</p>
+            <p className="text-xs text-muted-foreground">{t('allCaughtUp')}</p>
           </div>
         ) : (
           notifs.map((n, i) => {
@@ -190,8 +193,11 @@ function NotificationPanel({
 
       {/* Footer */}
       <div className="px-4 py-3 border-t border-white/[0.05]">
-        <button className="w-full text-center text-xs text-muted-foreground hover:text-foreground transition-colors font-medium py-1">
-          View all notifications
+        <button
+          onClick={() => { onMarkAll(); onClose(); }}
+          className="w-full text-center text-xs text-primary hover:text-primary/80 transition-colors font-semibold py-1 rounded-lg hover:bg-primary/5"
+        >
+          {t('viewAll')}
         </button>
       </div>
     </motion.div>
@@ -207,7 +213,10 @@ interface SMSTopbarProps {
 
 export default function SMSTopbar({ onMenuToggle }: SMSTopbarProps) {
   const { user } = useAuthStore();
+  const { lang, toggle: toggleLang } = useLanguageStore();
+  const t = useT();
   const pathname = usePathname();
+  const isAr = lang === 'ar';
 
   const [searchOpen,   setSearchOpen]   = useState(false);
   const [searchQuery,  setSearchQuery]  = useState('');
@@ -323,7 +332,7 @@ export default function SMSTopbar({ onMenuToggle }: SMSTopbarProps) {
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 onKeyDown={e => e.key === 'Escape' && setSearchOpen(false)}
-                placeholder="Search…"
+                placeholder={t('search')}
                 className={cn(
                   'w-full h-9 pl-8 pr-8 rounded-xl text-sm',
                   'bg-white/[0.05] border border-white/[0.10]',
@@ -354,6 +363,21 @@ export default function SMSTopbar({ onMenuToggle }: SMSTopbarProps) {
             </motion.button>
           )}
         </AnimatePresence>
+
+        {/* ── Language toggle ────────────────────────────── */}
+        <motion.button
+          onClick={toggleLang}
+          whileTap={{ scale: 0.92 }}
+          className={cn(
+            'btn-icon gap-1.5 px-2.5 w-auto font-bold text-xs',
+            isAr && 'bg-primary/10 border-primary/30 text-primary'
+          )}
+          aria-label={isAr ? t('switchToEnglish') : t('switchToArabic')}
+          title={isAr ? t('switchToEnglish') : t('switchToArabic')}
+        >
+          <Globe className="w-3.5 h-3.5 shrink-0" />
+          <span className="hidden xs:inline">{isAr ? 'EN' : 'AR'}</span>
+        </motion.button>
 
         {/* ── Notification bell ──────────────────────────── */}
         <div ref={notifRef} className="relative">

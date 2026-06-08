@@ -6,6 +6,7 @@ import { GraduationCap } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import SMSSidebar from './SMSSidebar';
 import SMSTopbar from './SMSTopbar';
+import { useT } from '@/lib/i18n';
 import { UserRole } from '@/types';
 
 interface SMSLayoutProps {
@@ -16,6 +17,7 @@ interface SMSLayoutProps {
 export default function SMSLayout({ children, allowedRoles }: SMSLayoutProps) {
   const { user, isAuthenticated, fetchUser, token } = useAuthStore();
   const router = useRouter();
+  const t = useT();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   // Wait for Zustand persist to hydrate from localStorage before checking auth.
   // On the very first render the store shows its initial defaults (not yet loaded),
@@ -62,7 +64,7 @@ export default function SMSLayout({ children, allowedRoles }: SMSLayoutProps) {
           transition={{ delay: 0.3 }}
           className="text-xs font-medium text-muted-foreground tracking-widest uppercase"
         >
-          Loading portal…
+          {t('loadingPortal')}
         </motion.p>
       </div>
     );

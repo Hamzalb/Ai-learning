@@ -10,6 +10,7 @@ import { principalAPI } from '@/services/api';
 import { Classroom, User } from '@/types';
 import toast from 'react-hot-toast';
 import { cn } from '@/lib/utils';
+import { useT } from '@/lib/i18n';
 
 const EMPTY_FORM = { name: '', gradeLevel: '', capacity: '30' };
 
@@ -28,6 +29,7 @@ function StudentManagerPanel({
   const [enrolled, setEnrolled]   = useState<string[]>(classroom.studentIds || []);
   const [search,   setSearch]     = useState('');
   const [saving,   setSaving]     = useState(false);
+  const t = useT();
 
   const cap     = classroom.capacity || 30;
   const isFull  = enrolled.length >= cap;
@@ -49,7 +51,7 @@ function StudentManagerPanel({
     setSaving(true);
     try {
       await principalAPI.assignStudents(classroom._id, enrolled);
-      toast.success('Student roster saved');
+      toast.success(t('saveRoster'));
       onSaved();
       onClose();
     } catch {
@@ -81,7 +83,7 @@ function StudentManagerPanel({
             <Users className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="font-bold text-foreground">Manage Students</h3>
+            <h3 className="font-bold text-foreground">{t('manageStudents')}</h3>
             <p className="text-xs text-muted-foreground mt-0.5">{classroom.name}</p>
           </div>
         </div>
@@ -91,12 +93,12 @@ function StudentManagerPanel({
       {/* Capacity bar */}
       <div className="px-6 py-4 border-b border-white/[0.04]">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Capacity</span>
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t('capacity')}</span>
           <span className={cn(
             'text-xs font-bold tabular-nums',
             enrolled.length >= cap ? 'text-rose-400' : enrolled.length >= cap * 0.8 ? 'text-amber-400' : 'text-emerald-400'
           )}>
-            {enrolled.length} / {cap} students
+            {enrolled.length} / {cap} {t('students').toLowerCase()}
           </span>
         </div>
         <div className="h-2 rounded-full bg-white/[0.05] overflow-hidden">
@@ -108,7 +110,7 @@ function StudentManagerPanel({
         </div>
         {isFull && (
           <p className="text-[11px] text-rose-400 mt-1.5 font-medium">
-            Classroom is at full capacity — remove students to add more.
+            {t('atFullCapacity')} — {t('remove')} {t('students').toLowerCase()}
           </p>
         )}
       </div>
@@ -120,7 +122,7 @@ function StudentManagerPanel({
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search students by name or email…"
+            placeholder={t('searchStudents')}
             className="input-field pl-10"
           />
         </div>
@@ -133,7 +135,7 @@ function StudentManagerPanel({
           <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/[0.04] bg-white/[0.01] shrink-0">
             <div className="w-2 h-2 rounded-full bg-violet-400" />
             <span className="text-xs font-bold text-foreground uppercase tracking-wide">
-              Enrolled
+              {t('enrolledStudents')}
             </span>
             <span className="ml-auto badge badge-violet text-[10px] px-2 py-0.5">
               {enrolledStudents.length}
@@ -145,7 +147,7 @@ function StudentManagerPanel({
               <div className="flex flex-col items-center py-8 gap-2 text-center">
                 <GraduationCap className="w-7 h-7 text-muted-foreground/20" />
                 <p className="text-xs text-muted-foreground">
-                  {search ? 'No enrolled students match' : 'No students enrolled yet'}
+                  {search ? t('noStudentsMatch') : t('noStudentsEnrolled')}
                 </p>
               </div>
             ) : enrolledStudents.map(s => (
@@ -169,7 +171,7 @@ function StudentManagerPanel({
                 {/* Remove */}
                 <button
                   onClick={() => removeStudent(s._id)}
-                  title="Remove from classroom"
+                  title={t('remove')}
                   className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-rose-400 hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100 shrink-0"
                 >
                   <UserMinus className="w-3.5 h-3.5" />
@@ -184,7 +186,7 @@ function StudentManagerPanel({
           <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/[0.04] bg-white/[0.01] shrink-0">
             <div className="w-2 h-2 rounded-full bg-emerald-400" />
             <span className="text-xs font-bold text-foreground uppercase tracking-wide">
-              Available
+              {t('available')}
             </span>
             <span className="ml-auto badge badge-success text-[10px] px-2 py-0.5">
               {availableStudents.length}
@@ -196,7 +198,7 @@ function StudentManagerPanel({
               <div className="flex flex-col items-center py-8 gap-2 text-center">
                 <Check className="w-7 h-7 text-emerald-400/30" />
                 <p className="text-xs text-muted-foreground">
-                  {search ? 'No available students match' : 'All school students are enrolled'}
+                  {search ? t('noStudentsMatch') : t('allStudentsEnrolled')}
                 </p>
               </div>
             ) : availableStudents.map(s => (
@@ -225,7 +227,7 @@ function StudentManagerPanel({
                 {!isFull && (
                   <button
                     onClick={e => { e.stopPropagation(); addStudent(s._id); }}
-                    title="Add to classroom"
+                    title={t('add')}
                     className="w-7 h-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-emerald-400 hover:bg-emerald-500/10 transition-all opacity-0 group-hover:opacity-100 shrink-0"
                   >
                     <UserPlus className="w-3.5 h-3.5" />
@@ -241,12 +243,12 @@ function StudentManagerPanel({
       <div className="flex items-center justify-between gap-3 px-6 py-4 border-t border-white/[0.05] bg-white/[0.01]">
         <p className="text-xs text-muted-foreground">
           {enrolled.length !== (classroom.studentIds?.length || 0) && (
-            <span className="text-amber-400 font-semibold">Unsaved changes · </span>
+            <span className="text-amber-400 font-semibold">{t('unsavedChanges')} · </span>
           )}
-          {enrolled.length} student{enrolled.length !== 1 ? 's' : ''} selected
+          {enrolled.length} {enrolled.length !== 1 ? t('studentsSelected') : t('studentSelected')}
         </p>
         <div className="flex gap-2.5">
-          <button onClick={onClose} className="btn-ghost">Cancel</button>
+          <button onClick={onClose} className="btn-ghost">{t('cancel')}</button>
           <button
             onClick={handleSave}
             disabled={saving}
@@ -255,7 +257,7 @@ function StudentManagerPanel({
             {saving
               ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               : <Check className="w-4 h-4" />}
-            {saving ? 'Saving…' : 'Save Roster'}
+            {saving ? t('saving') : t('saveRoster')}
           </button>
         </div>
       </div>
@@ -274,10 +276,11 @@ export default function ClassroomsPage() {
   const [saving,     setSaving]     = useState(false);
 
   // Which panel is open
-  const [teacherPanel,  setTeacherPanel]  = useState<string | null>(null); // classroomId
-  const [studentPanel,  setStudentPanel]  = useState<Classroom | null>(null);
+  const [teacherPanel,    setTeacherPanel]    = useState<string | null>(null); // classroomId
+  const [studentPanel,    setStudentPanel]    = useState<Classroom | null>(null);
   const [selectedTeacher, setSelectedTeacher] = useState('');
   const [assigningSaving, setAssigningSaving] = useState(false);
+  const t = useT();
 
   const load = async () => {
     const [cr, tr, sr] = await Promise.all([
@@ -294,21 +297,21 @@ export default function ClassroomsPage() {
   useEffect(() => { load(); }, []);
 
   const handleCreate = async () => {
-    if (!form.name) { toast.error('Class name required'); return; }
+    if (!form.name) { toast.error(t('className') + ' required'); return; }
     setSaving(true);
     try {
       await principalAPI.createClassroom({ ...form, capacity: Number(form.capacity) });
-      toast.success('Classroom created');
+      toast.success(t('createClassroom'));
       setShowForm(false); setForm(EMPTY_FORM); load();
     } catch { toast.error('Failed to create classroom'); }
     finally { setSaving(false); }
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+    if (!confirm(`${t('delete')} "${name}"?`)) return;
     try {
       await principalAPI.deleteClassroom(id);
-      toast.success('Classroom deleted'); load();
+      toast.success(t('delete')); load();
     } catch { toast.error('Failed to delete classroom'); }
   };
 
@@ -317,7 +320,7 @@ export default function ClassroomsPage() {
     setAssigningSaving(true);
     try {
       await principalAPI.assignTeacher(teacherPanel, selectedTeacher);
-      toast.success('Teacher assigned'); setTeacherPanel(null); load();
+      toast.success(t('assignTeacherBtn')); setTeacherPanel(null); load();
     } catch { toast.error('Failed to assign teacher'); }
     finally { setAssigningSaving(false); }
   };
@@ -345,13 +348,18 @@ export default function ClassroomsPage() {
           className="flex items-center justify-between flex-wrap gap-4"
         >
           <div>
-            <h1 className="section-header">Classrooms</h1>
+            <h1 className="section-header">{t('classrooms')}</h1>
             <p className="section-subheader">
-              {loading ? 'Loading…' : `${classrooms.length} classroom${classrooms.length !== 1 ? 's' : ''} managed`}
+              {loading
+                ? t('loading')
+                : `${classrooms.length} ${t('classroomsManaged')}`}
             </p>
           </div>
-          <button onClick={() => { setShowForm(s => !s); setTeacherPanel(null); setStudentPanel(null); }} className="btn-gradient gap-2">
-            <Plus className="w-4 h-4" /> New Classroom
+          <button
+            onClick={() => { setShowForm(s => !s); setTeacherPanel(null); setStudentPanel(null); }}
+            className="btn-gradient gap-2"
+          >
+            <Plus className="w-4 h-4" /> {t('newClassroom')}
           </button>
         </motion.div>
 
@@ -367,31 +375,59 @@ export default function ClassroomsPage() {
             >
               <div className="glow-line-top" />
               <div className="flex items-center justify-between mb-5">
-                <h3 className="font-bold text-foreground">Create Classroom</h3>
+                <h3 className="font-bold text-foreground">{t('createClassroom')}</h3>
                 <button onClick={() => { setShowForm(false); setForm(EMPTY_FORM); }} className="btn-icon">
                   <X className="w-4 h-4" />
                 </button>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
                 <div>
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">Class Name</label>
-                  <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Grade 10 A" className="input-field" />
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">
+                    {t('className')}
+                  </label>
+                  <input
+                    value={form.name}
+                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                    placeholder="Grade 10 A"
+                    className="input-field"
+                  />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">Grade Level</label>
-                  <input value={form.gradeLevel} onChange={e => setForm(f => ({ ...f, gradeLevel: e.target.value }))} placeholder="Grade 10" className="input-field" />
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">
+                    {t('gradeLevel')}
+                  </label>
+                  <input
+                    value={form.gradeLevel}
+                    onChange={e => setForm(f => ({ ...f, gradeLevel: e.target.value }))}
+                    placeholder="Grade 10"
+                    className="input-field"
+                  />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">Capacity</label>
-                  <input type="number" dir="ltr" min="1" max="100" value={form.capacity} onChange={e => setForm(f => ({ ...f, capacity: e.target.value }))} className="input-field" />
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">
+                    {t('capacity')}
+                  </label>
+                  <input
+                    type="number"
+                    dir="ltr"
+                    min="1"
+                    max="100"
+                    value={form.capacity}
+                    onChange={e => setForm(f => ({ ...f, capacity: e.target.value }))}
+                    className="input-field"
+                  />
                 </div>
               </div>
               <div className="flex gap-3">
                 <button onClick={handleCreate} disabled={saving} className="btn-gradient gap-2 disabled:opacity-60">
-                  {saving ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Plus className="w-4 h-4" />}
-                  {saving ? 'Creating…' : 'Create Classroom'}
+                  {saving
+                    ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    : <Plus className="w-4 h-4" />}
+                  {saving ? t('creating') : t('createClassroom')}
                 </button>
-                <button onClick={() => { setShowForm(false); setForm(EMPTY_FORM); }} className="btn-ghost">Cancel</button>
+                <button onClick={() => { setShowForm(false); setForm(EMPTY_FORM); }} className="btn-ghost">
+                  {t('cancel')}
+                </button>
               </div>
             </motion.div>
           )}
@@ -413,18 +449,24 @@ export default function ClassroomsPage() {
                   <div className="icon-box bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
                     <UserCircle className="w-4 h-4" />
                   </div>
-                  <h3 className="font-bold text-foreground">Assign Homeroom Teacher</h3>
+                  <h3 className="font-bold text-foreground">{t('assignTeacher')}</h3>
                 </div>
                 <button onClick={() => setTeacherPanel(null)} className="btn-icon"><X className="w-4 h-4" /></button>
               </div>
               <div className="mb-5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">Select Teacher</label>
-                <select value={selectedTeacher} onChange={e => setSelectedTeacher(e.target.value)} className="input-field appearance-none">
-                  <option value="">Choose a teacher…</option>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">
+                  {t('selectTeacher')}
+                </label>
+                <select
+                  value={selectedTeacher}
+                  onChange={e => setSelectedTeacher(e.target.value)}
+                  className="input-field appearance-none"
+                >
+                  <option value="">{t('chooseTeacher')}</option>
                   {teachers.map(t => <option key={t._id} value={t._id}>{t.name}</option>)}
                 </select>
                 {teachers.length === 0 && (
-                  <p className="text-xs text-amber-400 mt-1.5">No active teachers found. Ask the school admin to add teachers.</p>
+                  <p className="text-xs text-amber-400 mt-1.5">{t('noActiveTeachers')}</p>
                 )}
               </div>
               <div className="flex gap-3">
@@ -436,9 +478,9 @@ export default function ClassroomsPage() {
                   {assigningSaving
                     ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     : <UserCircle className="w-4 h-4" />}
-                  {assigningSaving ? 'Assigning…' : 'Assign Teacher'}
+                  {assigningSaving ? t('assigning') : t('assignTeacherBtn')}
                 </button>
-                <button onClick={() => setTeacherPanel(null)} className="btn-ghost">Cancel</button>
+                <button onClick={() => setTeacherPanel(null)} className="btn-ghost">{t('cancel')}</button>
               </div>
             </motion.div>
           )}
@@ -474,18 +516,18 @@ export default function ClassroomsPage() {
               <div className="icon-box-lg bg-sky-500/5 border border-sky-500/10 mx-auto mb-4">
                 <BookOpen className="w-6 h-6 text-sky-400/40" />
               </div>
-              <p className="text-sm font-semibold text-foreground mb-1">No classrooms yet</p>
-              <p className="text-xs text-muted-foreground mb-4">Create your first classroom to start assigning teachers and students.</p>
+              <p className="text-sm font-semibold text-foreground mb-1">{t('noClassrooms')}</p>
+              <p className="text-xs text-muted-foreground mb-4">{t('classroomHint')}</p>
               <button onClick={() => setShowForm(true)} className="btn-gradient gap-2">
-                <Plus className="w-4 h-4" /> Create First Classroom
+                <Plus className="w-4 h-4" /> {t('createFirstClassroom')}
               </button>
             </div>
           ) : (
             classrooms.map((c, i) => {
-              const teacher   = teachers.find(t => t._id === c.teacherId);
-              const enrolled  = c.studentIds?.length || 0;
-              const fillPct   = Math.min((enrolled / (c.capacity || 1)) * 100, 100);
-              const isActive  = studentPanel?._id === c._id;
+              const teacherObj = teachers.find(tr => tr._id === c.teacherId);
+              const enrolled   = c.studentIds?.length || 0;
+              const fillPct    = Math.min((enrolled / (c.capacity || 1)) * 100, 100);
+              const isActive   = studentPanel?._id === c._id;
 
               return (
                 <motion.div
@@ -502,7 +544,7 @@ export default function ClassroomsPage() {
                     <div className="min-w-0">
                       <h3 className="font-bold text-foreground truncate">{c.name}</h3>
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        {c.gradeLevel} · Capacity {c.capacity}
+                        {c.gradeLevel} · {t('capacity')} {c.capacity}
                       </p>
                     </div>
                     <button
@@ -516,17 +558,19 @@ export default function ClassroomsPage() {
                   {/* Teacher row */}
                   <div className="flex items-center justify-between text-sm mb-2">
                     <span className="text-muted-foreground flex items-center gap-1.5 text-xs">
-                      <BookOpen className="w-3.5 h-3.5" /> Teacher
+                      <BookOpen className="w-3.5 h-3.5" /> {t('teacher')}
                     </span>
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium text-foreground truncate max-w-[120px]">
-                        {teacher ? teacher.name : <span className="text-amber-400 text-xs font-semibold">Unassigned</span>}
+                        {teacherObj
+                          ? teacherObj.name
+                          : <span className="text-amber-400 text-xs font-semibold">{t('unassigned')}</span>}
                       </span>
                       <button
                         onClick={() => openTeacherPanel(c._id)}
                         className="text-xs text-primary hover:text-primary/80 font-semibold transition-colors shrink-0"
                       >
-                        {teacher ? 'Change' : 'Assign'}
+                        {teacherObj ? t('change') : t('assign')}
                       </button>
                     </div>
                   </div>
@@ -534,7 +578,7 @@ export default function ClassroomsPage() {
                   {/* Students row */}
                   <div className="flex items-center justify-between text-sm mb-3">
                     <span className="text-muted-foreground flex items-center gap-1.5 text-xs">
-                      <Users className="w-3.5 h-3.5" /> Students
+                      <Users className="w-3.5 h-3.5" /> {t('students')}
                     </span>
                     <div className="flex items-center gap-2">
                       <span className={cn(
@@ -548,7 +592,7 @@ export default function ClassroomsPage() {
                         onClick={() => openStudentPanel(c)}
                         className="text-xs text-violet-400 hover:text-violet-300 font-semibold transition-colors shrink-0"
                       >
-                        Manage
+                        {t('manage')}
                       </button>
                     </div>
                   </div>

@@ -6,9 +6,10 @@ import SMSLayout from '@/components/sms/SMSLayout';
 import { teacherAPI } from '@/services/api';
 import { Quiz, Classroom } from '@/types';
 import toast from 'react-hot-toast';
+import { useT } from '@/lib/i18n';
 
 const EMPTY_FORM = { title: '', description: '', classroomId: '', duration: '30', dueDate: '' };
-const EMPTY_Q    = { question: '', type: 'multiple_choice', options: ['', '', '', ''], correctAnswer: '', points: 1 };
+const EMPTY_Q    = { text: '', type: 'multiple_choice', options: ['', '', '', ''], correctAnswer: '', points: 1 };
 
 export default function TeacherQuizzesPage() {
   const [quizzes,   setQuizzes]   = useState<Quiz[]>([]);
@@ -18,6 +19,7 @@ export default function TeacherQuizzesPage() {
   const [form,      setForm]      = useState(EMPTY_FORM);
   const [questions, setQuestions] = useState([{ ...EMPTY_Q, options: ['', '', '', ''] }]);
   const [saving,    setSaving]    = useState(false);
+  const t = useT();
 
   const load = () =>
     Promise.all([teacherAPI.getQuizzes(), teacherAPI.getClasses()])
@@ -31,11 +33,11 @@ export default function TeacherQuizzesPage() {
     setQuestions(qs => qs.map((q, idx) => idx === i ? { ...q, [field]: val } : q));
 
   const handleCreate = async () => {
-    if (!form.title || !form.classroomId) { toast.error('Title and classroom required'); return; }
+    if (!form.title || !form.classroomId) { toast.error(t('quizTitle') + ' & ' + t('classroom') + ' required'); return; }
     setSaving(true);
     try {
       await teacherAPI.createQuiz({ ...form, duration: Number(form.duration), questions });
-      toast.success('Quiz created');
+      toast.success(t('createQuiz'));
       setShowForm(false);
       setForm(EMPTY_FORM);
       setQuestions([{ ...EMPTY_Q, options: ['', '', '', ''] }]);
@@ -45,23 +47,24 @@ export default function TeacherQuizzesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Delete this quiz?')) return;
+    if (!confirm(t('delete') + '?')) return;
     await teacherAPI.deleteQuiz(id);
-    toast.success('Quiz deleted'); load();
+    toast.success(t('delete')); load();
   };
 
   return (
     <SMSLayout allowedRoles={['teacher']}>
       <div className="space-y-5 max-w-5xl mx-auto">
 
-        <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', stiffness: 280, damping: 24 }}
+        <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ type: 'spring', stiffness: 280, damping: 24 }}
           className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h1 className="section-header">Quizzes</h1>
-            <p className="section-subheader">{quizzes.length} quizzes created</p>
+            <h1 className="section-header">{t('quizzes')}</h1>
+            <p className="section-subheader">{quizzes.length} {t('quizzes').toLowerCase()} created</p>
           </div>
           <button onClick={() => setShowForm(s => !s)} className="btn-gradient gap-2">
-            <Plus className="w-4 h-4" /> Create Quiz
+            <Plus className="w-4 h-4" /> {t('createQuiz')}
           </button>
         </motion.div>
 
@@ -72,45 +75,45 @@ export default function TeacherQuizzesPage() {
               className="glass-card p-6 space-y-5">
               <div className="glow-line-top" />
               <div className="flex items-center justify-between">
-                <h3 className="font-bold text-foreground">New Quiz</h3>
+                <h3 className="font-bold text-foreground">{t('newQuiz')}</h3>
                 <button onClick={() => setShowForm(false)} className="btn-icon"><X className="w-4 h-4" /></button>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">Quiz Title</label>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">{t('quizTitle')}</label>
                   <input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Chapter 3 Review" className="input-field" />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">Classroom</label>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">{t('classroom')}</label>
                   <select value={form.classroomId} onChange={e => setForm(f => ({ ...f, classroomId: e.target.value }))} className="input-field appearance-none">
-                    <option value="">Select class...</option>
+                    <option value="">{t('selectClassroom')}</option>
                     {classes.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">Duration (minutes)</label>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">{t('durationMin')}</label>
                   <input type="number" dir="ltr" value={form.duration} onChange={e => setForm(f => ({ ...f, duration: e.target.value }))} className="input-field" />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">Due Date</label>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">{t('dueDate')}</label>
                   <input type="datetime-local" dir="ltr" value={form.dueDate} onChange={e => setForm(f => ({ ...f, dueDate: e.target.value }))} className="input-field" />
                 </div>
               </div>
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-semibold text-foreground">Questions ({questions.length})</h4>
+                  <h4 className="text-sm font-semibold text-foreground">{t('questions')} ({questions.length})</h4>
                   <button onClick={addQuestion} className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 font-medium transition-colors">
-                    <Plus className="w-3 h-3" /> Add Question
+                    <Plus className="w-3 h-3" /> {t('addQuestion')}
                   </button>
                 </div>
                 {questions.map((q, i) => (
                   <div key={i} className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.05] space-y-3">
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-muted-foreground font-semibold w-6 shrink-0">Q{i + 1}</span>
-                      <input value={q.question} onChange={e => updateQuestion(i, 'question', e.target.value)}
-                        placeholder="Enter question..." className="input-field flex-1" />
+                      <input value={q.text} onChange={e => updateQuestion(i, 'text', e.target.value)}
+                        placeholder={t('enterQuestion')} className="input-field flex-1" />
                     </div>
                     {q.type === 'multiple_choice' && (
                       <div className="grid grid-cols-2 gap-2 ml-8">
@@ -123,7 +126,7 @@ export default function TeacherQuizzesPage() {
                     )}
                     <div className="ml-8 flex items-center gap-3">
                       <input value={q.correctAnswer} onChange={e => updateQuestion(i, 'correctAnswer', e.target.value)}
-                        placeholder="Correct answer..."
+                        placeholder={t('correctAnswer')}
                         className="flex-1 px-3 py-1.5 rounded-lg bg-emerald-500/5 border border-emerald-500/20 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-emerald-500/40" />
                       <span className="text-xs text-muted-foreground shrink-0">{q.points} pt</span>
                     </div>
@@ -134,9 +137,9 @@ export default function TeacherQuizzesPage() {
               <div className="flex gap-3">
                 <button onClick={handleCreate} disabled={saving} className="btn-gradient gap-2 disabled:opacity-60">
                   {saving ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Plus className="w-4 h-4" />}
-                  {saving ? 'Creating…' : 'Create Quiz'}
+                  {saving ? t('creating') : t('createQuiz')}
                 </button>
-                <button onClick={() => setShowForm(false)} className="btn-ghost">Cancel</button>
+                <button onClick={() => setShowForm(false)} className="btn-ghost">{t('cancel')}</button>
               </div>
             </motion.div>
           )}
@@ -155,9 +158,9 @@ export default function TeacherQuizzesPage() {
               <div className="icon-box-lg bg-violet-500/5 border border-violet-500/10 mx-auto mb-4">
                 <FileQuestion className="w-6 h-6 text-violet-400/40" />
               </div>
-              <p className="text-sm text-muted-foreground">No quizzes created yet</p>
+              <p className="text-sm text-muted-foreground">{t('noQuizzes')}</p>
               <button onClick={() => setShowForm(true)} className="btn-gradient gap-2 mt-4">
-                <Plus className="w-4 h-4" /> Create First Quiz
+                <Plus className="w-4 h-4" /> {t('createFirstQuiz')}
               </button>
             </div>
           ) : quizzes.map((q, i) => (
@@ -173,8 +176,8 @@ export default function TeacherQuizzesPage() {
               </div>
               <div className="flex items-center gap-4 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{q.duration || 0} min</span>
-                <span>{q.questions?.length || 0} questions</span>
-                {q.dueDate && <span>Due: {new Date(q.dueDate).toLocaleDateString()}</span>}
+                <span>{q.questions?.length || 0} {t('questions').toLowerCase()}</span>
+                {q.dueDate && <span>{t('due')}: {new Date(q.dueDate).toLocaleDateString()}</span>}
               </div>
             </motion.div>
           ))}

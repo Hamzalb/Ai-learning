@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Cairo, Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from 'react-hot-toast';
+import LanguageBootstrap from '@/components/LanguageBootstrap';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const cairo = Cairo({ subsets: ['arabic', 'latin'], variable: '--font-cairo' });
@@ -22,6 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" dir="ltr" className="dark">
       <body className={`${inter.variable} ${cairo.variable} antialiased min-h-dvh`}>
+        <LanguageBootstrap />
         {children}
         <Toaster
           position="top-center"
