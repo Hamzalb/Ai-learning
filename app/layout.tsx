@@ -20,8 +20,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ar" dir="rtl" className="dark">
-      <body className={`${inter.variable} ${cairo.variable} antialiased min-h-screen`}>
+    <html lang="en" dir="ltr" className="dark">
+      <body className={`${inter.variable} ${cairo.variable} antialiased min-h-dvh`}>
         {children}
         <Toaster
           position="top-center"

@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -400,6 +400,13 @@ interface SMSSidebarProps {
 /* ── Main export ────────────────────────────────────────── */
 export default function SMSSidebar({ mobileOpen = false, onMobileClose }: SMSSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
+  const pathname = usePathname();
+
+  // Auto-close mobile drawer on route change
+  useEffect(() => {
+    if (mobileOpen) onMobileClose?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   return (
     <>

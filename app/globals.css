@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:ital,opsz,wght@0,14..32,300..900;1,14..32,300..900&display=swap');
-
+/* Fonts are loaded via next/font/google in app/layout.tsx — no @import needed */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -567,4 +566,48 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PERFORMANCE HINTS
+═══════════════════════════════════════════════════════════ */
+/* GPU-composite only animated layers */
+.glass-card,
+.glass-card-hover,
+.glass-card-interactive {
+  contain: layout paint;
+  backface-visibility: hidden;
+}
+
+/* Prevent tap delay on all interactive elements (mobile) */
+button, a, [role="button"] {
+  touch-action: manipulation;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE HELPERS
+═══════════════════════════════════════════════════════════ */
+/* Safe-area insets for notched devices */
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.safe-top    { padding-top:    env(safe-area-inset-top,    0px); }
+
+/* Fluid container: max-width grows with viewport */
+.container-fluid {
+  width: 100%;
+  padding-inline: clamp(1rem, 4vw, 2.5rem);
+  margin-inline: auto;
+  max-width: 1400px;
+}
+
+/* Text that never overflows its container */
+.text-balance { text-wrap: balance; }
+
+/* Notification panel */
+.notif-panel {
+  @apply absolute right-0 top-full mt-2 w-80 sm:w-96 max-h-[480px]
+         overflow-y-auto rounded-2xl
+         bg-card/95 backdrop-blur-2xl
+         border border-white/[0.08]
+         shadow-2xl shadow-black/60
+         z-50;
 }

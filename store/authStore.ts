@@ -30,7 +30,8 @@ export const useAuthStore = create<AuthState>()(
         try {
           const res = await authAPI.register(data);
           const { user, token } = res.data.data;
-          Cookies.set('token', token, { expires: 7, secure: true, sameSite: 'strict' });
+          const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+          Cookies.set('token', token, { expires: 7, secure: isHttps, sameSite: 'strict' });
           if (typeof window !== 'undefined') localStorage.setItem('token', token);
           set({ user, token, isAuthenticated: true, isLoading: false });
         } catch (error) {
@@ -45,7 +46,8 @@ export const useAuthStore = create<AuthState>()(
           const res = await authAPI.login({ email, password, rememberMe });
           const { user, token, redirect } = res.data.data;
           const expires = rememberMe ? 30 : 7;
-          Cookies.set('token', token, { expires, secure: true, sameSite: 'strict' });
+          const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+          Cookies.set('token', token, { expires, secure: isHttps, sameSite: 'strict' });
           if (typeof window !== 'undefined') localStorage.setItem('token', token);
           set({ user, token, isAuthenticated: true, isLoading: false });
           return redirect || '/login';
