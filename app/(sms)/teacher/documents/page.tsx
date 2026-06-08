@@ -1,34 +1,40 @@
 'use client';
 import { useEffect, useState, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { Upload, Trash2, FileText, Lock } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Upload, Trash2, FileText, Lock, X } from 'lucide-react';
 import SMSLayout from '@/components/sms/SMSLayout';
 import { teacherAPI } from '@/services/api';
 import { SchoolDocument, Classroom } from '@/types';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
 import toast from 'react-hot-toast';
 
 const CATEGORIES = ['lecture', 'assignment', 'resource', 'exam'] as const;
-const CAT_COLORS: Record<string, string> = { lecture: 'text-blue-400 bg-blue-500/10 border-blue-500/20', assignment: 'text-amber-400 bg-amber-500/10 border-amber-500/20', resource: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20', exam: 'text-red-400 bg-red-500/10 border-red-500/20' };
+const CAT_BADGE: Record<string, string> = {
+  lecture:    'badge-info',
+  assignment: 'badge-warning',
+  resource:   'badge-success',
+  exam:       'badge-error',
+};
+
+const EMPTY_FORM = { title: '', classroomId: '', visibility: 'all', category: 'lecture' };
 
 export default function TeacherDocumentsPage() {
   const [documents, setDocuments] = useState<SchoolDocument[]>([]);
-  const [classes, setClasses] = useState<Classroom[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ title: '', classroomId: '', visibility: 'all', category: 'lecture' });
-  const [file, setFile] = useState<File | null>(null);
+  const [classes,   setClasses]   = useState<Classroom[]>([]);
+  const [loading,   setLoading]   = useState(true);
+  const [showForm,  setShowForm]  = useState(false);
+  const [form,      setForm]      = useState(EMPTY_FORM);
+  const [file,      setFile]      = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const load = () => Promise.all([teacherAPI.getDocuments(), teacherAPI.getClasses()])
-    .then(([dr, cr]) => { setDocuments(dr.data.data.documents); setClasses(cr.data.data.classrooms); })
-    .finally(() => setLoading(false));
+  const load = () =>
+    Promise.all([teacherAPI.getDocuments(), teacherAPI.getClasses()])
+      .then(([dr, cr]) => { setDocuments(dr.data.data.documents); setClasses(cr.data.data.classrooms); })
+      .finally(() => setLoading(false));
   useEffect(() => { load(); }, []);
 
   const handleUpload = async () => {
-    if (!file || !form.title) return toast.error('Title and file required');
+    if (!file || !form.title) { toast.error('Title and file required'); return; }
     setUploading(true);
     try {
       const fd = new FormData();
@@ -39,10 +45,7 @@ export default function TeacherDocumentsPage() {
       fd.append('category', form.category);
       await teacherAPI.uploadDocument(fd);
       toast.success('Document uploaded');
-      setShowForm(false);
-      setFile(null);
-      setForm({ title: '', classroomId: '', visibility: 'all', category: 'lecture' });
-      load();
+      setShowForm(false); setFile(null); setForm(EMPTY_FORM); load();
     } catch { toast.error('Upload failed'); }
     finally { setUploading(false); }
   };
@@ -50,83 +53,121 @@ export default function TeacherDocumentsPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this document?')) return;
     await teacherAPI.deleteDocument(id);
-    toast.success('Document deleted');
-    load();
+    toast.success('Document deleted'); load();
   };
 
   return (
     <SMSLayout allowedRoles={['teacher']}>
-      <div className="space-y-5 max-w-5xl">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-extrabold text-foreground">Class Documents</h1>
-            <p className="text-sm text-muted-foreground">{documents.length} documents uploaded</p>
-          </div>
-          <Button onClick={() => setShowForm(!showForm)} className="btn-gradient gap-2"><Upload className="w-4 h-4" /> Upload</Button>
-        </div>
+      <div className="space-y-5 max-w-5xl mx-auto">
 
-        {showForm && (
-          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-5 space-y-4">
-            <h3 className="font-bold text-foreground">Upload Document</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <Input label="Document Title" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground">Classroom</label>
-                <select value={form.classroomId} onChange={e => setForm(f => ({ ...f, classroomId: e.target.value }))}
-                  className="w-full px-3 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40">
-                  <option value="">All my classes</option>
-                  {classes.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
-                </select>
+        <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', stiffness: 280, damping: 24 }}
+          className="flex items-center justify-between flex-wrap gap-4">
+          <div>
+            <h1 className="section-header">Class Documents</h1>
+            <p className="section-subheader">{documents.length} documents uploaded</p>
+          </div>
+          <button onClick={() => setShowForm(s => !s)} className="btn-gradient gap-2">
+            <Upload className="w-4 h-4" /> Upload
+          </button>
+        </motion.div>
+
+        <AnimatePresence>
+          {showForm && (
+            <motion.div initial={{ opacity: 0, y: -12, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -12, scale: 0.98 }} transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+              className="glass-card p-6 space-y-4">
+              <div className="glow-line-top" />
+              <div className="flex items-center justify-between">
+                <h3 className="font-bold text-foreground">Upload Document</h3>
+                <button onClick={() => { setShowForm(false); setFile(null); setForm(EMPTY_FORM); }} className="btn-icon"><X className="w-4 h-4" /></button>
               </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground">Category</label>
-                <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-                  className="w-full px-3 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40">
-                  {CATEGORIES.map(c => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
-                </select>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground">File</label>
-                <div onClick={() => fileRef.current?.click()} className="w-full px-3 py-2.5 rounded-xl bg-white/[0.03] border border-dashed border-white/[0.10] text-sm text-muted-foreground hover:border-primary/40 cursor-pointer transition-colors flex items-center gap-2">
-                  <Upload className="w-4 h-4" />
-                  {file ? file.name : 'Click to select file...'}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">Document Title</label>
+                  <input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="Lecture Notes — Week 3" className="input-field" />
                 </div>
-                <input ref={fileRef} type="file" className="hidden" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onChange={e => setFile(e.target.files?.[0] || null)} />
+                <div>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">Classroom</label>
+                  <select value={form.classroomId} onChange={e => setForm(f => ({ ...f, classroomId: e.target.value }))} className="input-field appearance-none">
+                    <option value="">All my classes</option>
+                    {classes.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">Category</label>
+                  <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} className="input-field appearance-none">
+                    {CATEGORIES.map(c => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">File</label>
+                  <div onClick={() => fileRef.current?.click()}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.03] border border-dashed border-white/[0.10] text-sm text-muted-foreground hover:border-primary/40 cursor-pointer transition-colors flex items-center gap-2 min-h-[44px]">
+                    <Upload className="w-4 h-4 shrink-0" />
+                    <span className="truncate">{file ? file.name : 'Click to select file...'}</span>
+                  </div>
+                  <input ref={fileRef} type="file" className="hidden" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                    onChange={e => setFile(e.target.files?.[0] || null)} />
+                </div>
               </div>
-            </div>
-            <div className="flex gap-2">
-              <Button onClick={handleUpload} isLoading={uploading} className="btn-gradient gap-2"><Upload className="w-4 h-4" /> Upload</Button>
-              <Button variant="ghost" onClick={() => setShowForm(false)}>Cancel</Button>
-            </div>
-          </motion.div>
-        )}
+              <div className="flex gap-3">
+                <button onClick={handleUpload} disabled={uploading} className="btn-gradient gap-2 disabled:opacity-60">
+                  {uploading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Upload className="w-4 h-4" />}
+                  {uploading ? 'Uploading…' : 'Upload Document'}
+                </button>
+                <button onClick={() => { setShowForm(false); setFile(null); setForm(EMPTY_FORM); }} className="btn-ghost">Cancel</button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {loading ? <p className="text-muted-foreground col-span-2 text-center py-8">Loading...</p>
-            : documents.length === 0 ? <p className="text-muted-foreground col-span-2 text-center py-8">No documents uploaded yet</p>
-            : documents.map((d, i) => (
-              <motion.div key={d._id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }} className="glass-card-hover p-5">
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center shrink-0">
-                    <FileText className="w-5 h-5 text-muted-foreground" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-semibold text-foreground text-sm truncate">{d.title}</h3>
-                      {d.isProtected && <Lock className="w-3 h-3 text-muted-foreground shrink-0" />}
-                    </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className={`text-xs px-2 py-0.5 rounded-full border ${CAT_COLORS[d.category]}`}>{d.category}</span>
-                      <span className="text-xs text-muted-foreground">{d.originalName}</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">{new Date(d.createdAt).toLocaleDateString()}</p>
-                  </div>
-                  <button onClick={() => handleDelete(d._id)} className="p-1.5 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-400 transition-colors shrink-0">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+          {loading ? Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="glass-card p-5">
+              <div className="flex items-start gap-3">
+                <div className="skeleton w-10 h-10 rounded-xl shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="skeleton h-4 w-2/3 rounded" />
+                  <div className="skeleton h-3 w-1/3 rounded" />
                 </div>
-              </motion.div>
-            ))}
+              </div>
+            </div>
+          )) : documents.length === 0 ? (
+            <div className="col-span-2 glass-card p-16 text-center">
+              <div className="glow-line-top" />
+              <div className="icon-box-lg bg-sky-500/5 border border-sky-500/10 mx-auto mb-4">
+                <FileText className="w-6 h-6 text-sky-400/40" />
+              </div>
+              <p className="text-sm text-muted-foreground">No documents uploaded yet</p>
+              <button onClick={() => setShowForm(true)} className="btn-gradient gap-2 mt-4">
+                <Upload className="w-4 h-4" /> Upload First Document
+              </button>
+            </div>
+          ) : documents.map((d, i) => (
+            <motion.div key={d._id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.04, type: 'spring', stiffness: 280, damping: 24 }}
+              className="glass-card-hover p-5">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center shrink-0">
+                  <FileText className="w-5 h-5 text-muted-foreground" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <h3 className="font-semibold text-foreground text-sm truncate">{d.title}</h3>
+                    {d.isProtected && <Lock className="w-3 h-3 text-muted-foreground/60 shrink-0" />}
+                  </div>
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    <span className={`badge text-[10px] ${CAT_BADGE[d.category] || 'badge-default'}`}>{d.category}</span>
+                    <span className="text-xs text-muted-foreground truncate">{d.originalName}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">{new Date(d.createdAt).toLocaleDateString()}</p>
+                </div>
+                <button onClick={() => handleDelete(d._id)} className="btn-icon hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/20 shrink-0">
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </motion.div>
+          ))}
         </div>
       </div>
     </SMSLayout>

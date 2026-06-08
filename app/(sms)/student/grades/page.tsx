@@ -1,16 +1,22 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { BarChart3, TrendingUp } from 'lucide-react';
+import { BarChart3 } from 'lucide-react';
 import SMSLayout from '@/components/sms/SMSLayout';
 import { studentAPI } from '@/services/api';
 import { Grade } from '@/types';
 import { cn } from '@/lib/utils';
 
-const TYPE_COLORS: Record<string, string> = { quiz: 'text-violet-400', midterm: 'text-blue-400', final: 'text-amber-400', homework: 'text-emerald-400', participation: 'text-pink-400' };
+const TYPE_BADGE: Record<string, string> = {
+  quiz:          'badge-violet',
+  midterm:       'badge-info',
+  final:         'badge-warning',
+  homework:      'badge-success',
+  participation: 'badge-cyan',
+};
 
 export default function StudentGradesPage() {
-  const [grades, setGrades] = useState<Grade[]>([]);
+  const [grades,  setGrades]  = useState<Grade[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,32 +25,35 @@ export default function StudentGradesPage() {
 
   const avg = grades.length ? Math.round(grades.reduce((s, g) => s + (g.score / g.maxScore * 100), 0) / grades.length) : 0;
   const getLetterGrade = (pct: number) => pct >= 90 ? 'A' : pct >= 80 ? 'B' : pct >= 70 ? 'C' : pct >= 60 ? 'D' : 'F';
+  const pass = avg >= 60;
 
   return (
     <SMSLayout allowedRoles={['student']}>
-      <div className="space-y-5 max-w-4xl">
-        <div>
-          <h1 className="text-2xl font-extrabold text-foreground">My Grades</h1>
-          <p className="text-sm text-muted-foreground">{grades.length} grades recorded</p>
-        </div>
+      <div className="space-y-5 max-w-4xl mx-auto">
 
-        {grades.length > 0 && (
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-5 overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent" />
-            <div className="flex items-center gap-6">
+        <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', stiffness: 280, damping: 24 }}>
+          <h1 className="section-header">My Grades</h1>
+          <p className="section-subheader">{grades.length} grades recorded</p>
+        </motion.div>
+
+        {!loading && grades.length > 0 && (
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05, type: 'spring', stiffness: 260, damping: 24 }}
+            className="glass-card p-5 overflow-hidden">
+            <div className="glow-line-top" style={{ background: 'linear-gradient(90deg, transparent, hsl(160 84% 39% / 0.3), transparent)' }} />
+            <div className="flex items-center gap-6 flex-wrap">
               <div className="text-center">
                 <p className="text-5xl font-extrabold text-foreground tabular-nums">{avg}%</p>
                 <p className="text-xs text-muted-foreground mt-1">Overall Average</p>
               </div>
-              <div className="h-16 w-px bg-white/[0.06]" />
+              <div className="h-16 w-px bg-white/[0.06] hidden sm:block" />
               <div className="text-center">
-                <p className="text-5xl font-extrabold text-emerald-400">{getLetterGrade(avg)}</p>
+                <p className={cn('text-5xl font-extrabold tabular-nums', pass ? 'text-emerald-400' : 'text-rose-400')}>{getLetterGrade(avg)}</p>
                 <p className="text-xs text-muted-foreground mt-1">Letter Grade</p>
               </div>
-              <div className="flex-1">
+              <div className="flex-1 min-w-[120px]">
                 <div className="h-3 rounded-full bg-white/[0.04] overflow-hidden">
                   <motion.div initial={{ width: 0 }} animate={{ width: `${avg}%` }} transition={{ duration: 1, ease: 'easeOut' }}
-                    className={cn('h-full rounded-full', avg >= 60 ? 'bg-gradient-to-r from-emerald-500 to-teal-400' : 'bg-gradient-to-r from-red-500 to-rose-400')}
+                    className={cn('h-full rounded-full', pass ? 'bg-gradient-to-r from-emerald-500 to-teal-400' : 'bg-gradient-to-r from-rose-500 to-pink-400')}
                   />
                 </div>
               </div>
@@ -52,38 +61,50 @@ export default function StudentGradesPage() {
           </motion.div>
         )}
 
-        <div className="glass-card overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-white/[0.06]">
-                {['Type', 'Score', 'Out of', 'Percentage', 'Term', 'Date'].map(h => (
-                  <th key={h} className="text-left px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? <tr><td colSpan={6} className="text-center py-12 text-muted-foreground">Loading...</td></tr>
-                : grades.length === 0 ? <tr><td colSpan={6} className="text-center py-12 text-muted-foreground">No grades yet</td></tr>
-                : grades.map((g, i) => {
-                  const pct = Math.round((g.score / g.maxScore) * 100);
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, type: 'spring', stiffness: 260, damping: 24 }}
+          className="glass-card overflow-hidden">
+          <div className="glow-line-top" />
+          <div className="overflow-x-auto">
+            <table className="data-table">
+              <thead>
+                <tr>{['Type', 'Score', 'Out of', 'Percentage', 'Term', 'Date'].map(h => <th key={h}>{h}</th>)}</tr>
+              </thead>
+              <tbody>
+                {loading ? Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className="border-b border-white/[0.03]">
+                    {[1,2,3,4,5,6].map(j => <td key={j} className="px-5 py-4"><div className="skeleton h-4 rounded" /></td>)}
+                  </tr>
+                )) : grades.length === 0 ? (
+                  <tr><td colSpan={6}>
+                    <div className="flex flex-col items-center py-16 gap-3">
+                      <div className="icon-box-lg bg-indigo-500/5 border border-indigo-500/10">
+                        <BarChart3 className="w-6 h-6 text-indigo-400/40" />
+                      </div>
+                      <p className="text-sm text-muted-foreground">No grades recorded yet</p>
+                    </div>
+                  </td></tr>
+                ) : grades.map((g, i) => {
+                  const pct  = Math.round((g.score / g.maxScore) * 100);
+                  const pass = pct >= 60;
                   return (
-                    <motion.tr key={g._id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.03 }}
-                      className="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors"
-                    >
-                      <td className="px-5 py-4"><span className={cn('text-xs font-medium capitalize', TYPE_COLORS[g.type])}>{g.type}</span></td>
-                      <td className="px-5 py-4 font-bold tabular-nums text-foreground">{g.score}</td>
-                      <td className="px-5 py-4 text-muted-foreground">{g.maxScore}</td>
-                      <td className="px-5 py-4">
-                        <span className={cn('font-bold tabular-nums', pct >= 60 ? 'text-emerald-400' : 'text-red-400')}>{pct}%</span>
+                    <motion.tr key={g._id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.03 }}>
+                      <td>
+                        <span className={cn('badge text-[10px]', TYPE_BADGE[g.type] || 'badge-default')}>{g.type}</span>
                       </td>
-                      <td className="px-5 py-4 text-muted-foreground capitalize">{g.term}</td>
-                      <td className="px-5 py-4 text-muted-foreground">{new Date(g.createdAt).toLocaleDateString()}</td>
+                      <td className="font-bold tabular-nums text-foreground">{g.score}</td>
+                      <td className="text-muted-foreground">{g.maxScore}</td>
+                      <td>
+                        <span className={cn('font-black tabular-nums text-sm', pass ? 'text-emerald-400' : 'text-rose-400')}>{pct}%</span>
+                      </td>
+                      <td className="text-muted-foreground capitalize">{g.term}</td>
+                      <td className="text-muted-foreground">{new Date(g.createdAt).toLocaleDateString()}</td>
                     </motion.tr>
                   );
                 })}
-            </tbody>
-          </table>
-        </div>
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
       </div>
     </SMSLayout>
   );

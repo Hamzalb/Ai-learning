@@ -1,10 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Save, Building2 } from 'lucide-react';
+import { Save, Building2, Mail, Phone, Calendar, Link, MapPin } from 'lucide-react';
 import SMSLayout from '@/components/sms/SMSLayout';
 import { schoolAPI } from '@/services/api';
-import { Button } from '@/components/ui/Button';
 import toast from 'react-hot-toast';
 
 interface SchoolProfile {
@@ -16,10 +15,19 @@ interface SchoolProfile {
   logo: string;
 }
 
+const FIELDS: { label: string; key: keyof SchoolProfile; type: string; placeholder: string; icon: React.ElementType; ltr?: boolean }[] = [
+  { label: 'School Name',    key: 'name',         type: 'text',  placeholder: 'e.g. Beirut International Academy', icon: Building2 },
+  { label: 'Address',        key: 'address',      type: 'text',  placeholder: 'Street, City, Country',             icon: MapPin },
+  { label: 'Contact Email',  key: 'contactEmail', type: 'email', placeholder: 'contact@school.com',                icon: Mail,     ltr: true },
+  { label: 'Phone Number',   key: 'phone',        type: 'tel',   placeholder: '+961 1 234 567',                    icon: Phone,    ltr: true },
+  { label: 'Academic Year',  key: 'academicYear', type: 'text',  placeholder: '2025–2026',                         icon: Calendar },
+  { label: 'Logo URL',       key: 'logo',         type: 'url',   placeholder: 'https://...',                       icon: Link,     ltr: true },
+];
+
 export default function SchoolSettingsPage() {
-  const [form, setForm] = useState<SchoolProfile>({ name: '', address: '', contactEmail: '', phone: '', academicYear: '', logo: '' });
+  const [form,    setForm]    = useState<SchoolProfile>({ name: '', address: '', contactEmail: '', phone: '', academicYear: '', logo: '' });
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [saving,  setSaving]  = useState(false);
 
   useEffect(() => {
     schoolAPI.getProfile().then(r => {
@@ -37,45 +45,54 @@ export default function SchoolSettingsPage() {
     finally { setSaving(false); }
   };
 
-  const field = (label: string, key: keyof SchoolProfile, type = 'text', placeholder = '') => (
-    <div>
-      <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">{label}</label>
-      <input type={type} value={form[key]} placeholder={placeholder} onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
-        className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40" />
-    </div>
-  );
-
   return (
     <SMSLayout allowedRoles={['school']}>
-      <div className="space-y-6 max-w-2xl">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-            <Building2 className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-extrabold text-foreground">School Settings</h1>
-            <p className="text-sm text-muted-foreground">Update your school profile</p>
-          </div>
-        </div>
+      <div className="space-y-6 max-w-2xl mx-auto">
 
-        {loading ? <p className="text-muted-foreground text-center py-12">Loading...</p>
-          : (
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-6 space-y-4">
-              <h2 className="text-sm font-bold text-foreground">School Information</h2>
-              {field('School Name', 'name', 'text', 'e.g. Beirut International Academy')}
-              {field('Address', 'address', 'text', 'Street, City, Country')}
-              {field('Contact Email', 'contactEmail', 'email', 'contact@school.com')}
-              {field('Phone Number', 'phone', 'tel', '+961 1 234 567')}
-              {field('Academic Year', 'academicYear', 'text', '2025–2026')}
-              {field('Logo URL', 'logo', 'url', 'https://...')}
+        <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', stiffness: 280, damping: 24 }}>
+          <h1 className="section-header">School Settings</h1>
+          <p className="section-subheader">Update your school profile and information</p>
+        </motion.div>
 
-              <div className="pt-2">
-                <Button onClick={handleSave} isLoading={saving} className="btn-gradient gap-2">
-                  <Save className="w-4 h-4" /> Save Changes
-                </Button>
+        {loading ? (
+          <div className="glass-card p-6 space-y-4">
+            <div className="glow-line-top" />
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="space-y-1.5">
+                <div className="skeleton h-3 w-28 rounded" />
+                <div className="skeleton h-11 w-full rounded-xl" />
               </div>
-            </motion.div>
-          )}
+            ))}
+          </div>
+        ) : (
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08, type: 'spring', stiffness: 260, damping: 24 }}
+            className="glass-card p-6 space-y-4">
+            <div className="glow-line-top" />
+            <h2 className="text-sm font-bold text-foreground mb-2">School Information</h2>
+            {FIELDS.map(({ label, key, type, placeholder, icon: Icon, ltr }) => (
+              <div key={key}>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">{label}</label>
+                <div className="relative">
+                  <Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60 pointer-events-none" />
+                  <input
+                    type={type}
+                    dir={ltr ? 'ltr' : undefined}
+                    value={form[key]}
+                    placeholder={placeholder}
+                    onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
+                    className="input-field pl-10"
+                  />
+                </div>
+              </div>
+            ))}
+            <div className="pt-2">
+              <button onClick={handleSave} disabled={saving} className="btn-gradient gap-2 disabled:opacity-60">
+                {saving ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Save className="w-4 h-4" />}
+                {saving ? 'Saving…' : 'Save Changes'}
+              </button>
+            </div>
+          </motion.div>
+        )}
       </div>
     </SMSLayout>
   );
