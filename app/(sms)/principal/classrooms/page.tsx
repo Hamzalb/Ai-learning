@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, Users, BookOpen, X, UserCircle } from 'lucide-react';
 import SMSLayout from '@/components/sms/SMSLayout';
-import { principalAPI, schoolAPI } from '@/services/api';
+import { principalAPI } from '@/services/api';
 import { Classroom, User } from '@/types';
 import toast from 'react-hot-toast';
 
@@ -22,7 +22,11 @@ export default function ClassroomsPage() {
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
 
   const load = async () => {
-    const [cr, tr, sr] = await Promise.all([principalAPI.getClassrooms(), schoolAPI.getTeachers(), schoolAPI.getStudents()]);
+    const [cr, tr, sr] = await Promise.all([
+      principalAPI.getClassrooms(),
+      principalAPI.getTeachers(),
+      principalAPI.getStudents(),
+    ]);
     setClassrooms(cr.data.data.classrooms);
     setTeachers(tr.data.data.teachers);
     setStudents(sr.data.data.students);

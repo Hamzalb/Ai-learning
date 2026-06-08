@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, BookMarked, X } from 'lucide-react';
 import SMSLayout from '@/components/sms/SMSLayout';
-import { principalAPI, schoolAPI } from '@/services/api';
+import { principalAPI } from '@/services/api';
 import { Subject, Classroom, User } from '@/types';
 import toast from 'react-hot-toast';
 
@@ -20,7 +20,7 @@ export default function SubjectsPage() {
   const [saving,     setSaving]     = useState(false);
 
   const load = async () => {
-    const [sr, cr, tr] = await Promise.all([principalAPI.getSubjects(), principalAPI.getClassrooms(), schoolAPI.getTeachers()]);
+    const [sr, cr, tr] = await Promise.all([principalAPI.getSubjects(), principalAPI.getClassrooms(), principalAPI.getTeachers()]);
     setSubjects(sr.data.data.subjects);
     setClassrooms(cr.data.data.classrooms);
     setTeachers(tr.data.data.teachers);

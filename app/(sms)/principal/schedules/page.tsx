@@ -49,7 +49,12 @@ export default function SchedulesPage() {
     finally { setSaving(false); }
   };
 
-  const classroomSubjects = subjects.filter(s => !selectedClassroom || s.classroomId === selectedClassroom);
+  // Show all school subjects in the schedule dropdown.
+  // If subjects were created linked to this classroom, those appear too;
+  // if not, all subjects remain available so the schedule is never empty.
+  const classroomSubjects = selectedClassroom && subjects.some(s => s.classroomId === selectedClassroom)
+    ? subjects.filter(s => s.classroomId === selectedClassroom)
+    : subjects;
 
   return (
     <SMSLayout allowedRoles={['principal']}>
