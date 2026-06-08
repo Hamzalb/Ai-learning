@@ -111,7 +111,7 @@ export default function StudentAttendancePage() {
                 </div></td></tr>
               ) : records.map((rec, i) => {
                 const cfg = STATUS_CFG[rec.status] || STATUS_CFG.present;
-                const date = new Date(rec.date || rec.createdAt);
+                const date = new Date(rec.date || rec.createdAt || new Date().toISOString());
                 return (
                   <motion.tr key={rec._id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04, type: 'spring', stiffness: 280, damping: 24 }}>
                     <td className="font-medium text-foreground text-sm">

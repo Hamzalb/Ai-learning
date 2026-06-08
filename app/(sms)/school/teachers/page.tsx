@@ -123,7 +123,7 @@ export default function SchoolTeachersPage() {
                   <td className="text-muted-foreground text-sm">{t.phone || '—'}</td>
                   <td><span className={t.isActive ? 'badge-success' : 'badge-error'}><span className={cn('w-1.5 h-1.5 rounded-full', t.isActive ? 'bg-emerald-400' : 'bg-rose-400')} />{t.isActive ? 'Active' : 'Inactive'}</span></td>
                   <td>
-                    <button onClick={() => schoolAPI.toggleMember(t._id).then(load)} className={cn('btn-icon', t.isActive ? 'hover:bg-amber-500/10 hover:text-amber-400 hover:border-amber-500/20' : 'hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/20')}>
+                    <button onClick={() => schoolAPI.toggleTeacher(t._id).then(load)} className={cn('btn-icon', t.isActive ? 'hover:bg-amber-500/10 hover:text-amber-400 hover:border-amber-500/20' : 'hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/20')}>
                       <Power className="w-3.5 h-3.5" />
                     </button>
                   </td>

@@ -172,6 +172,8 @@ export interface Attendance {
   subjectId?: string;
   date: string;
   status: 'present' | 'absent' | 'late';
+  note?: string;
+  createdAt?: string;
 }
 
 export interface Payment {
@@ -235,4 +237,22 @@ export interface DashboardData {
 
 export type Language = 'arabic' | 'english' | 'lebanese';
 export type Difficulty = 'easy' | 'medium' | 'hard';
-export type Subject = 'math' | 'physics' | 'chemistry' | 'biology' | 'history' | 'arabic' | 'english' | 'french' | 'general';
+export type SubjectArea = 'math' | 'physics' | 'chemistry' | 'biology' | 'history' | 'arabic' | 'english' | 'french' | 'general';
+
+export interface PDFDocument {
+  _id: string;
+  title: string;
+  fileUrl: string;
+  originalName?: string;
+  fileSize: number;
+  mimeType?: string;
+  processingStatus: 'pending' | 'processing' | 'completed' | 'failed';
+  summary?: string;
+  extractedText?: string;
+  pageCount?: number;
+  userId?: string;
+  createdAt: string;
+}
+
+/** Backwards-compatibility alias for PDFDocument */
+export type Document = PDFDocument;

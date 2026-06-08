@@ -61,7 +61,7 @@ export default function QuizPage() {
 
   useEffect(() => {
     if (view !== 'taking' || !activeQuiz) return;
-    setTimeLeft(activeQuiz.timeLimit * 60);
+    setTimeLeft((activeQuiz.timeLimit ?? 0) * 60);
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) { clearInterval(timer); handleSubmit(); return 0; }
@@ -521,7 +521,7 @@ export default function QuizPage() {
                     <div>
                       <h3 className="font-bold text-foreground truncate">{quiz.title}</h3>
                       <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                        <span className={`text-[11px] px-2 py-0.5 rounded-full border font-medium ${getDifficultyColor(quiz.difficulty)}`}>
+                        <span className={`text-[11px] px-2 py-0.5 rounded-full border font-medium ${getDifficultyColor(quiz.difficulty ?? '')}`}>
                           {quiz.difficulty === 'easy' ? 'سهل' : quiz.difficulty === 'medium' ? 'متوسط' : 'صعب'}
                         </span>
                         <span className="text-xs text-muted-foreground">{quiz.questions?.length || 0} أسئلة</span>

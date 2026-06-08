@@ -11,6 +11,7 @@ interface AuthState {
   isAuthenticated: boolean;
 
   login: (email: string, password: string, rememberMe?: boolean) => Promise<string>;
+  register: (data: { name: string; email: string; password: string; role: string }) => Promise<void>;
   logout: () => void;
   fetchUser: () => Promise<void>;
   updateUser: (data: Partial<User>) => void;
@@ -23,6 +24,20 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       isLoading: false,
       isAuthenticated: false,
+
+      register: async (data) => {
+        set({ isLoading: true });
+        try {
+          const res = await authAPI.register(data);
+          const { user, token } = res.data.data;
+          Cookies.set('token', token, { expires: 7, secure: true, sameSite: 'strict' });
+          if (typeof window !== 'undefined') localStorage.setItem('token', token);
+          set({ user, token, isAuthenticated: true, isLoading: false });
+        } catch (error) {
+          set({ isLoading: false });
+          throw error;
+        }
+      },
 
       login: async (email, password, rememberMe = false) => {
         set({ isLoading: true });
