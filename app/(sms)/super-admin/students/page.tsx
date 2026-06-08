@@ -42,7 +42,7 @@ export default function SuperAdminStudentsPage() {
     <SMSLayout allowedRoles={['super_admin']}>
       <div className="space-y-5 max-w-6xl mx-auto">
 
-        <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', stiffness: 280, damping: 24 }} className="flex items-center justify-between">
+        <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ type: 'spring', stiffness: 280, damping: 24 }} className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="section-header">Students</h1>
             <p className="section-subheader">{students.length} students enrolled</p>
@@ -105,6 +105,7 @@ export default function SuperAdminStudentsPage() {
 
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, type: 'spring', stiffness: 260, damping: 24 }} className="glass-card overflow-hidden">
           <div className="glow-line-top" />
+          <div className="overflow-x-auto">
           <table className="data-table">
             <thead><tr>{['Student', 'Email', 'School', 'Status', 'Actions'].map(h => <th key={h}>{h}</th>)}</tr></thead>
             <tbody>
@@ -143,6 +144,7 @@ export default function SuperAdminStudentsPage() {
               })}
             </tbody>
           </table>
+          </div>
         </motion.div>
       </div>
     </SMSLayout>

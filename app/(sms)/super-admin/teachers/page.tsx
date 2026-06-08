@@ -51,7 +51,7 @@ export default function SuperAdminTeachersPage() {
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: 'spring', stiffness: 280, damping: 24 }}
-          className="flex items-center justify-between"
+          className="flex items-center justify-between flex-wrap gap-4"
         >
           <div>
             <h1 className="section-header">Teachers</h1>
@@ -142,6 +142,7 @@ export default function SuperAdminTeachersPage() {
           className="glass-card overflow-hidden"
         >
           <div className="glow-line-top" />
+          <div className="overflow-x-auto">
           <table className="data-table">
             <thead>
               <tr>
@@ -209,6 +210,7 @@ export default function SuperAdminTeachersPage() {
               })}
             </tbody>
           </table>
+          </div>
         </motion.div>
       </div>
     </SMSLayout>

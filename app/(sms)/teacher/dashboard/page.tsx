@@ -67,7 +67,7 @@ export default function TeacherDashboard() {
         </motion.div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <StatsCard label="My Classes"    value={loading ? 0 : stats.classes}      icon={BookOpen}     color="text-sky-400"    iconBg="from-sky-500/20 to-sky-600/10"    delay={0} />
           <StatsCard label="Quizzes"       value={loading ? 0 : stats.quizzes}      icon={FileQuestion} color="text-violet-400"  iconBg="from-violet-500/20 to-violet-600/10" delay={0.06} />
           <StatsCard label="Pending Grades" value={loading ? 0 : stats.pendingGrades} icon={BarChart3}  color="text-amber-400"   iconBg="from-amber-500/20 to-amber-600/10"   delay={0.12} />

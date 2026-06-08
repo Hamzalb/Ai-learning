@@ -297,7 +297,7 @@
 
   /* ── Table ────────────────────────────────────────────── */
   .data-table {
-    @apply w-full text-sm;
+    @apply min-w-full text-sm;
   }
   .data-table thead tr {
     @apply border-b border-white/[0.05];

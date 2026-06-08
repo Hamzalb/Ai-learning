@@ -2,11 +2,15 @@
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, Search, X, ChevronRight } from 'lucide-react';
+import { Bell, Search, X, ChevronRight, Menu } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { cn } from '@/lib/utils';
 
-export default function SMSTopbar() {
+interface SMSTopbarProps {
+  onMenuToggle?: () => void;
+}
+
+export default function SMSTopbar({ onMenuToggle }: SMSTopbarProps) {
   const { user } = useAuthStore();
   const pathname = usePathname();
   const [searchOpen, setSearchOpen] = useState(false);
@@ -19,7 +23,7 @@ export default function SMSTopbar() {
 
   return (
     <header
-      className="h-16 shrink-0 flex items-center justify-between px-6 relative z-20"
+      className="h-16 shrink-0 flex items-center justify-between px-4 sm:px-6 relative z-20"
       style={{
         background: 'hsl(240 42% 4% / 0.85)',
         backdropFilter: 'blur(16px)',
@@ -29,34 +33,46 @@ export default function SMSTopbar() {
       {/* Top border glow */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent pointer-events-none" />
 
-      {/* ── Breadcrumb ───────────────────────────────────── */}
-      <motion.nav
-        initial={{ opacity: 0, x: -10 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-        className="flex items-center gap-1.5 text-sm min-w-0 flex-1"
-      >
-        {breadcrumbs.map((crumb, i) => {
-          const isLast = i === breadcrumbs.length - 1;
-          return (
-            <span key={i} className="flex items-center gap-1.5 min-w-0">
-              {i > 0 && (
-                <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/40 shrink-0" />
-              )}
-              <span
-                className={cn(
-                  'truncate transition-colors',
-                  isLast
-                    ? 'font-semibold text-foreground'
-                    : 'text-muted-foreground/60 hover:text-muted-foreground'
+      {/* Left side: hamburger (mobile) + breadcrumb */}
+      <div className="flex items-center gap-2 min-w-0 flex-1">
+        {/* Hamburger — mobile only */}
+        <button
+          onClick={onMenuToggle}
+          className="lg:hidden btn-icon shrink-0"
+          aria-label="Open navigation menu"
+        >
+          <Menu className="w-4 h-4" />
+        </button>
+
+        {/* ── Breadcrumb ───────────────────────────────────── */}
+        <motion.nav
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+          className="flex items-center gap-1.5 text-sm min-w-0"
+        >
+          {breadcrumbs.map((crumb, i) => {
+            const isLast = i === breadcrumbs.length - 1;
+            return (
+              <span key={i} className="flex items-center gap-1.5 min-w-0">
+                {i > 0 && (
+                  <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/40 shrink-0" />
                 )}
-              >
-                {crumb}
+                <span
+                  className={cn(
+                    'truncate transition-colors',
+                    isLast
+                      ? 'font-semibold text-foreground'
+                      : 'text-muted-foreground/60 hover:text-muted-foreground hidden sm:inline',
+                  )}
+                >
+                  {crumb}
+                </span>
               </span>
-            </span>
-          );
-        })}
-      </motion.nav>
+            );
+          })}
+        </motion.nav>
+      </div>
 
       {/* ── Right Controls ───────────────────────────────── */}
       <div className="flex items-center gap-2 shrink-0">
@@ -67,7 +83,7 @@ export default function SMSTopbar() {
             <motion.div
               key="search-open"
               initial={{ width: 36, opacity: 0 }}
-              animate={{ width: 220, opacity: 1 }}
+              animate={{ width: 180, opacity: 1 }}
               exit={{ width: 36, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 300, damping: 28 }}
               className="relative"
@@ -111,26 +127,23 @@ export default function SMSTopbar() {
         {/* Notifications */}
         <button className="btn-icon relative" aria-label="Notifications">
           <Bell className="w-4 h-4" />
-          {/* Notification dot */}
           <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-rose-500">
             <span className="absolute inset-0 rounded-full bg-rose-500 animate-ping-slow" />
           </span>
         </button>
 
         {/* Avatar */}
-        <div className="relative group">
-          <div
-            className={cn(
-              'w-9 h-9 rounded-xl flex items-center justify-center',
-              'text-white text-sm font-black cursor-pointer',
-              'bg-gradient-to-br from-indigo-500 via-violet-500 to-purple-600',
-              'shadow-lg shadow-violet-500/25',
-              'transition-transform duration-200 hover:scale-105',
-            )}
-            title={user?.name}
-          >
-            {user?.name?.charAt(0)?.toUpperCase() || 'U'}
-          </div>
+        <div
+          className={cn(
+            'w-9 h-9 rounded-xl flex items-center justify-center',
+            'text-white text-sm font-black cursor-pointer',
+            'bg-gradient-to-br from-indigo-500 via-violet-500 to-purple-600',
+            'shadow-lg shadow-violet-500/25',
+            'transition-transform duration-200 hover:scale-105',
+          )}
+          title={user?.name}
+        >
+          {user?.name?.charAt(0)?.toUpperCase() || 'U'}
         </div>
       </div>
     </header>

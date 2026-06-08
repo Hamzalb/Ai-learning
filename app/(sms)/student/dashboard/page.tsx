@@ -253,7 +253,7 @@ export default function StudentDashboard() {
           <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-3">
             Study Tools
           </h2>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {quickLinks.map((link, i) => (
               <Link key={link.href} href={link.href} className="glass-card-interactive p-4 flex flex-col gap-3 group">
                 <div className="flex items-start justify-between">

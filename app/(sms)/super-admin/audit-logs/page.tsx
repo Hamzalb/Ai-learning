@@ -51,7 +51,7 @@ export default function AuditLogsPage() {
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: 'spring', stiffness: 280, damping: 24 }}
-          className="flex items-start justify-between"
+          className="flex items-start justify-between flex-wrap gap-4"
         >
           <div>
             <h1 className="section-header">Audit Logs</h1>
@@ -84,16 +84,17 @@ export default function AuditLogsPage() {
           className="glass-card overflow-hidden"
         >
           <div className="glow-line-top" />
+          <div className="overflow-x-auto">
 
           {/* Table header */}
-          <div className="grid grid-cols-[auto,1fr,auto,auto] items-center gap-4 px-5 py-3.5 border-b border-white/[0.05]">
+          <div className="grid grid-cols-[auto,1fr,auto,auto] items-center gap-4 px-5 py-3.5 border-b border-white/[0.05] min-w-[560px]">
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Actor</span>
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Action</span>
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Role</span>
             <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Time</span>
           </div>
 
-          <div className="divide-y divide-white/[0.03]">
+          <div className="divide-y divide-white/[0.03] min-w-[560px]">
             {loading ? (
               Array.from({ length: 8 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-4 px-5 py-4">
@@ -153,6 +154,7 @@ export default function AuditLogsPage() {
                 </motion.div>
               );
             })}
+          </div>
           </div>
         </motion.div>
       </div>

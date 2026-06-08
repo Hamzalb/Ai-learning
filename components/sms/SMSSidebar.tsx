@@ -7,7 +7,7 @@ import {
   GraduationCap, LayoutDashboard, Building2, Users, UserCheck, Shield, FileText,
   ChevronLeft, ChevronRight, LogOut, BookOpen, CalendarDays, ClipboardList,
   BarChart3, FileQuestion, Home, DollarSign, Brain, Settings, Sparkles,
-  ClipboardCheck
+  ClipboardCheck, X,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { UserRole } from '@/types';
@@ -104,8 +104,23 @@ const ROLE_CONFIG: Record<UserRole, {
   },
 };
 
-export default function SMSSidebar() {
-  const [collapsed, setCollapsed] = useState(false);
+const SIDEBAR_STYLE = {
+  background: 'linear-gradient(180deg, hsl(240 42% 5.5%) 0%, hsl(240 38% 5%) 100%)',
+  borderRight: '1px solid hsl(240 22% 14%)',
+};
+
+/* ── Shared inner sidebar content ─────────────────────── */
+function SidebarContent({
+  collapsed,
+  onCollapse,
+  onClose,
+  layoutPrefix,
+}: {
+  collapsed: boolean;
+  onCollapse?: () => void;
+  onClose?: () => void;
+  layoutPrefix: string;
+}) {
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const pathname = usePathname();
   const { user, logout } = useAuthStore();
@@ -114,37 +129,44 @@ export default function SMSSidebar() {
   const config = ROLE_CONFIG[role] || ROLE_CONFIG.student;
 
   return (
-    <motion.aside
-      animate={{ width: collapsed ? 68 : 232 }}
-      transition={{ type: 'spring', stiffness: 320, damping: 30 }}
-      className="relative h-screen flex flex-col shrink-0 z-30"
-      style={{
-        background: 'linear-gradient(180deg, hsl(240 42% 5.5%) 0%, hsl(240 38% 5%) 100%)',
-        borderRight: '1px solid hsl(240 22% 14%)',
-      }}
-    >
-      {/* Subtle top glow */}
-      <div className={cn(
-        'absolute top-0 left-0 right-0 h-px',
-        'bg-gradient-to-r from-transparent via-white/[0.08] to-transparent'
-      )} />
+    <>
+      {/* Top glow line */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/[0.08] to-transparent pointer-events-none" />
 
-      {/* Toggle button */}
-      <button
-        onClick={() => setCollapsed(c => !c)}
-        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        className={cn(
-          'absolute -right-3 top-8 z-20',
-          'w-6 h-6 rounded-full flex items-center justify-center',
-          'bg-card border border-white/[0.10] text-muted-foreground',
-          'hover:text-foreground hover:border-white/[0.18]',
-          'shadow-lg shadow-black/30 transition-all duration-200',
-        )}
-      >
-        {collapsed
-          ? <ChevronRight className="w-3.5 h-3.5" />
-          : <ChevronLeft  className="w-3.5 h-3.5" />}
-      </button>
+      {/* Desktop collapse button */}
+      {onCollapse && (
+        <button
+          onClick={onCollapse}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          className={cn(
+            'absolute -right-3 top-8 z-20',
+            'w-6 h-6 rounded-full flex items-center justify-center',
+            'bg-card border border-white/[0.10] text-muted-foreground',
+            'hover:text-foreground hover:border-white/[0.18]',
+            'shadow-lg shadow-black/30 transition-all duration-200',
+          )}
+        >
+          {collapsed
+            ? <ChevronRight className="w-3.5 h-3.5" />
+            : <ChevronLeft  className="w-3.5 h-3.5" />}
+        </button>
+      )}
+
+      {/* Mobile close button */}
+      {onClose && (
+        <button
+          onClick={onClose}
+          aria-label="Close navigation"
+          className={cn(
+            'absolute right-3 top-4 z-20',
+            'w-8 h-8 rounded-xl flex items-center justify-center',
+            'text-muted-foreground hover:text-foreground hover:bg-white/[0.05]',
+            'transition-all duration-200',
+          )}
+        >
+          <X className="w-4 h-4" />
+        </button>
+      )}
 
       {/* ── Header / Logo ─────────────────────────────────── */}
       <div className="flex items-center gap-3 px-4 py-5 min-h-[72px]">
@@ -184,7 +206,7 @@ export default function SMSSidebar() {
 
       {/* ── Navigation ────────────────────────────────────── */}
       <nav className="flex-1 overflow-y-auto px-2.5 py-3 space-y-0.5">
-        {items.map((item, idx) => {
+        {items.map((item) => {
           const active = pathname === item.href ||
             (item.href !== `/${role}/dashboard` && pathname.startsWith(item.href));
 
@@ -197,6 +219,7 @@ export default function SMSSidebar() {
             >
               <Link
                 href={item.href}
+                onClick={onClose}
                 className={cn(
                   'relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium',
                   'transition-all duration-200 group outline-none',
@@ -208,7 +231,7 @@ export default function SMSSidebar() {
                 {/* Active background */}
                 {active && (
                   <motion.div
-                    layoutId="sms-nav-active"
+                    layoutId={`sms-nav-active-${layoutPrefix}`}
                     className={cn(
                       'absolute inset-0 rounded-xl',
                       'bg-gradient-to-r from-white/[0.07] to-white/[0.04]',
@@ -224,7 +247,6 @@ export default function SMSSidebar() {
                 {/* Hover background */}
                 {!active && hoveredItem === item.href && (
                   <motion.div
-                    layoutId={undefined}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -365,6 +387,55 @@ export default function SMSSidebar() {
           </AnimatePresence>
         </button>
       </div>
-    </motion.aside>
+    </>
+  );
+}
+
+/* ── Props ──────────────────────────────────────────────── */
+interface SMSSidebarProps {
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
+}
+
+/* ── Main export ────────────────────────────────────────── */
+export default function SMSSidebar({ mobileOpen = false, onMobileClose }: SMSSidebarProps) {
+  const [collapsed, setCollapsed] = useState(false);
+
+  return (
+    <>
+      {/* ── Desktop sidebar (hidden below lg breakpoint) ── */}
+      <motion.aside
+        animate={{ width: collapsed ? 68 : 232 }}
+        transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+        className="hidden lg:flex relative h-full flex-col shrink-0 z-30"
+        style={SIDEBAR_STYLE}
+      >
+        <SidebarContent
+          collapsed={collapsed}
+          onCollapse={() => setCollapsed(c => !c)}
+          layoutPrefix="desktop"
+        />
+      </motion.aside>
+
+      {/* ── Mobile sidebar drawer (fixed overlay, lg:hidden) ── */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.aside
+            initial={{ x: -240 }}
+            animate={{ x: 0 }}
+            exit={{ x: -240 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+            className="lg:hidden fixed top-0 left-0 bottom-0 w-[232px] flex flex-col z-50"
+            style={SIDEBAR_STYLE}
+          >
+            <SidebarContent
+              collapsed={false}
+              onClose={onMobileClose}
+              layoutPrefix="mobile"
+            />
+          </motion.aside>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

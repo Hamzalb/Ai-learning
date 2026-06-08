@@ -98,6 +98,7 @@ export default function StudentAttendancePage() {
           className="glass-card overflow-hidden"
         >
           <div className="glow-line-top" />
+          <div className="overflow-x-auto">
           <table className="data-table">
             <thead><tr>{['Date', 'Day', 'Status', 'Note'].map(h => <th key={h}>{h}</th>)}</tr></thead>
             <tbody>
@@ -131,6 +132,7 @@ export default function StudentAttendancePage() {
               })}
             </tbody>
           </table>
+          </div>
         </motion.div>
       </div>
     </SMSLayout>
